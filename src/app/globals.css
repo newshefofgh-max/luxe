@@ -1,0 +1,297 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Google Fonts fallbacks ─────────────────────────────────────────────────── */
+/* Playfair Display: editorial serif for .section-title headings                  */
+/* DM Sans: used as fallback when FT System Blank font file is not yet placed     */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=DM+Sans:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
+/* ─── FT System Blank (English body / UI font) ────────────────────────────────
+   Drop your .woff2 / .woff files into /public/fonts/
+   Expected files:
+     FTSystemBlank-Regular.woff2
+     FTSystemBlank-Medium.woff2
+     FTSystemBlank-Bold.woff2
+     FTSystemBlank-Black.woff2
+   ──────────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'FT System Blank';
+  src: local('FT System Blank Regular'),
+       url('/fonts/FTSystemBlank-Regular.woff2') format('woff2'),
+       url('/fonts/FTSystemBlank-Regular.woff')  format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FT System Blank';
+  src: local('FT System Blank Medium'),
+       url('/fonts/FTSystemBlank-Medium.woff2') format('woff2'),
+       url('/fonts/FTSystemBlank-Medium.woff')  format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FT System Blank';
+  src: local('FT System Blank Bold'),
+       url('/fonts/FTSystemBlank-Bold.woff2') format('woff2'),
+       url('/fonts/FTSystemBlank-Bold.woff')  format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FT System Blank';
+  src: local('FT System Blank Black'),
+       url('/fonts/FTSystemBlank-Black.woff2') format('woff2'),
+       url('/fonts/FTSystemBlank-Black.woff')  format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Milligram Arabic Trial Bold (Arabic font) ───────────────────────────────
+   Expected file:
+     MilligramArabicTrial-Bold.woff2
+   ──────────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Milligram Arabic';
+  src: local('Milligram Arabic Trial Bold'),
+       local('MilligramArabicTrialBold'),
+       url('/fonts/MilligramArabicTrial-Bold.woff2') format('woff2'),
+       url('/fonts/MilligramArabicTrial-Bold.woff')  format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Map all weights to the Bold cut since that's the only one in the trial */
+@font-face {
+  font-family: 'Milligram Arabic';
+  src: local('Milligram Arabic Trial Bold'),
+       local('MilligramArabicTrialBold'),
+       url('/fonts/MilligramArabicTrial-Bold.woff2') format('woff2'),
+       url('/fonts/MilligramArabicTrial-Bold.woff')  format('woff');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Theme tokens ───────────────────────────────────────────────────────────── */
+:root {
+  /* Accessorize-faithful: white base, light pink tints, black text */
+  --bg:            #ffffff;
+  --bg-alt:        #FFF5FC;
+  --surface:       #ffffff;
+  --surface-alt:   #FFE8F6;
+  --text:          #1b1710;
+  --text-muted:    #6b6360;
+  --text-faint:    #adadad;
+  --border:        rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --pink:          #E91E8C;
+  --pink-dark:     #C2185B;
+  --pink-muted:    rgba(233, 30, 140, 0.10);
+  --pink-light:    #FFE1F9;
+  --scrollbar-bg:  #fff5fc;
+}
+
+html.dark {
+  --bg:            #0d0d1a;
+  --bg-alt:        #080816;
+  --surface:       #1a1a2e;
+  --surface-alt:   #111122;
+  --text:          #f5f5f0;
+  --text-muted:    #9ca3af;
+  --text-faint:    #6b7280;
+  --border:        rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --pink:          #E91E8C;
+  --pink-dark:     #C2185B;
+  --pink-muted:    rgba(233, 30, 140, 0.12);
+  --pink-light:    rgba(233, 30, 140, 0.15);
+  --scrollbar-bg:  #0d0d1a;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  /* FT System Blank with DM Sans as fallback */
+  font-family: 'FT System Blank', 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Arabic: Milligram Arabic Trial Bold with Cairo as fallback */
+[dir="rtl"] body,
+.font-arabic,
+[lang="ar"] {
+  font-family: 'Milligram Arabic', 'Cairo', 'Tahoma', Arial, sans-serif;
+  font-weight: 700;
+}
+
+/* Inline Arabic text (font-arabic class used on spans/p inside LTR pages) */
+.font-arabic {
+  font-family: 'Milligram Arabic', 'Cairo', 'Tahoma', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.font-display { font-family: 'Playfair Display', Georgia, serif; }
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 3px; }
+
+/* ─── Selection ──────────────────────────────────────────────────────────────── */
+::selection { background: rgba(233,30,140,0.15); color: #C2185B; }
+
+/* ─── Components ─────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Accessorize-style buttons: black → pink hover */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-[#1b1710] text-white font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+  }
+  .btn-primary:hover {
+    background-color: var(--pink);
+    color: #ffffff;
+  }
+
+  /* Pink filled button */
+  .btn-primary-pink {
+    @apply inline-flex items-center justify-center gap-2 text-white font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+    background-color: var(--pink);
+  }
+  .btn-primary-pink:hover {
+    background-color: var(--pink-dark);
+  }
+
+  /* Outline black → filled black */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 border border-[#1b1710] text-[#1b1710] font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+  }
+  .btn-secondary:hover {
+    background-color: #1b1710;
+    color: #ffffff;
+  }
+
+  /* Outline pink → filled pink */
+  .btn-outline-pink {
+    @apply inline-flex items-center justify-center gap-2 font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+    border: 1px solid var(--pink);
+    color: var(--pink);
+  }
+  .btn-outline-pink:hover {
+    background-color: var(--pink);
+    color: #ffffff;
+  }
+
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--border-strong);
+  }
+  .input {
+    width: 100%;
+    background-color: var(--surface-alt);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+    font-size: 0.875rem;
+    font-family: inherit;
+  }
+  .input::placeholder { color: var(--text-faint); }
+  .input:focus { border-color: var(--pink); }
+  .label {
+    @apply block text-xs mb-1.5 tracking-widest uppercase;
+    color: var(--text-muted);
+  }
+  .section-title {
+    @apply font-display text-4xl md:text-5xl font-black italic;
+    color: var(--text);
+  }
+  .section-tag {
+    @apply text-[10px] tracking-[0.25em] uppercase font-bold;
+    color: var(--text-faint);
+  }
+  .pink-text { color: var(--pink); }
+  .luxury-divider {
+    @apply flex items-center gap-6 my-10;
+  }
+  .luxury-divider::before,
+  .luxury-divider::after {
+    content: '';
+    @apply flex-1 h-px;
+    background: var(--border-strong);
+  }
+}
+
+/* ─── Hero gradient ──────────────────────────────────────────────────────────── */
+.hero-gradient {
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.96) 0%,
+    rgba(255,255,255,0.82) 40%,
+    rgba(255,255,255,0.0) 100%
+  );
+}
+html.dark .hero-gradient {
+  background: linear-gradient(
+    to right,
+    rgba(13,13,26,0.97) 0%,
+    rgba(13,13,26,0.85) 40%,
+    rgba(13,13,26,0.0) 100%
+  );
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-alt) 25%, var(--surface) 50%, var(--surface-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Pink shine ─────────────────────────────────────────────────────────────── */
+@keyframes pinkShine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.pink-shine {
+  background: linear-gradient(90deg, #E91E8C 0%, #ff80c8 50%, #E91E8C 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pinkShine 3s linear infinite;
+}
+.gold-shine { @apply pink-shine; }
+
+/* ─── Underline hover ────────────────────────────────────────────────────────── */
+.underline-hover {
+  position: relative;
+}
+.underline-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+.underline-hover:hover::after { width: 100%; }
+
+/* ─── RTL ────────────────────────────────────────────────────────────────────── */
+[dir="rtl"] .ltr-only { display: none; }
+[dir="ltr"] .rtl-only { display: none; }
