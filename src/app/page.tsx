@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Metadata } from 'next';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
@@ -11,13 +10,12 @@ import ProductCard from '@/components/store/ProductCard';
 import { IProduct } from '@/types';
 import { ArrowRight } from 'lucide-react';
 import NewsletterForm from '@/components/store/NewsletterForm';
+import { getMockProducts } from '@/lib/mockProducts';
 
 export const metadata: Metadata = {
   title: 'Luxe Accessories | إكسسوارات لوكس — Premium Egyptian Fashion',
   description: 'Shop luxury Egyptian accessories. Bracelets, necklaces, rings, and sunglasses. Cash on delivery across all governorates.',
 };
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 const categories = [
   {
@@ -46,60 +44,8 @@ const categories = [
   },
 ];
 
-async function getFeaturedProducts(): Promise<IProduct[]> {
-  try {
-    const res = await fetch(`${API_BASE}/products?featured=true&limit=8`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return getMockProducts();
-    const data = await res.json();
-    return data.data || getMockProducts();
-  } catch {
-    return getMockProducts();
-  }
-}
-
-function getMockProducts(): IProduct[] {
-  const cats = ['bracelets', 'necklaces', 'rings', 'sunglasses'] as const;
-  const names = ['Gold Chain Bracelet', 'Pearl Drop Necklace', 'Statement Ring', 'Vintage Sunglasses',
-                 'Rose Gold Bangle', 'Crystal Pendant', 'Stacking Rings Set', 'Cat Eye Shades'];
-  const namesAr = ['أسورة سلسلة ذهبية', 'قلادة لؤلؤة', 'خاتم مميز', 'نظارات كلاسيكية',
-                   'أسورة ذهب وردي', 'قلادة كريستال', 'طقم خواتم', 'نظارات كاتس آي'];
-  const imgs = [
-    'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=600&q=80',
-    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80',
-    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80',
-    'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&q=80',
-    'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=600&q=80',
-    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=80',
-    'https://images.unsplash.com/photo-1598560917505-59a3ad559071?w=600&q=80',
-    'https://images.unsplash.com/photo-1577803645773-f96470509666?w=600&q=80',
-  ];
-
-  return Array.from({ length: 8 }, (_, i) => ({
-    _id: `mock-${i}`,
-    name: names[i],
-    nameAr: namesAr[i],
-    slug: `product-${i + 1}`,
-    description: 'Premium luxury accessory crafted with finest materials.',
-    descriptionAr: 'إكسسوار فاخر مصنوع من أجود المواد.',
-    price: [299, 450, 199, 350, 280, 520, 389, 310][i],
-    comparePrice: [399, 600, 250, 450, 350, 680, 500, 420][i],
-    images: [imgs[i]],
-    category: cats[i % 4],
-    variants: [],
-    stock: [12, 3, 8, 2, 15, 6, 4, 9][i],
-    sold: [120, 85, 34, 67, 23, 91, 55, 40][i],
-    isActive: true,
-    isFeatured: true,
-    tags: ['luxury', 'featured'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }));
-}
-
-export default async function HomePage() {
-  const featured = await getFeaturedProducts();
+export default function HomePage() {
+  const featured: IProduct[] = getMockProducts(8);
 
   return (
     <div style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>

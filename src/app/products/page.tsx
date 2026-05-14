@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -11,6 +9,7 @@ import Footer from '@/components/store/Footer';
 import ProductGrid from '@/components/store/ProductGrid';
 import axios from 'axios';
 import type { IProduct } from '@/types';
+import { getMockProducts } from '@/lib/mockProducts';
 
 const CATEGORIES = [
   { value: '', label: 'الكل', labelEn: 'All' },
@@ -88,8 +87,19 @@ function ProductsContent() {
         setProducts(data.data?.products ?? []);
         setTotal(data.data?.total ?? 0);
       } catch {
-        setProducts([]);
-        setTotal(0);
+        // Static demo fallback: serve mock catalog when API is unavailable
+        let mock = getMockProducts(12);
+        if (category) mock = mock.filter((p) => p.category === category);
+        if (search) {
+          const q = search.toLowerCase();
+          mock = mock.filter(
+            (p) => p.name.toLowerCase().includes(q) || p.nameAr.includes(search)
+          );
+        }
+        if (minPrice) mock = mock.filter((p) => p.price >= Number(minPrice));
+        if (maxPrice) mock = mock.filter((p) => p.price <= Number(maxPrice));
+        setProducts(mock);
+        setTotal(mock.length);
       } finally {
         setLoading(false);
       }
