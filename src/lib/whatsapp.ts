@@ -3,7 +3,7 @@ import type { IOrder } from '@/types';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const WHATSAPP_ENABLED = process.env.ENABLE_WHATSAPP === 'true';
-const WHATSAPP_API_URL = `https://graph.facebook.com/v21.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+const WHATSAPP_API_URL = `https://graph.facebook.com/v25.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
 const ADMIN_WHATSAPP_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER;
 
@@ -222,16 +222,53 @@ export async function sendOrderStatusUpdate(
 
 /**
  * Send an OTP code via WhatsApp.
+ * Uses a template message (required for business-initiated outbound messages).
+ * Set WHATSAPP_OTP_TEMPLATE in .env.local to your approved template name.
  */
 export async function sendOTPViaWhatsApp(phone: string, otp: string): Promise<boolean> {
-  const message = [
-    `🔐 رمز التحقق الخاص بك في Accessory:`,
-    ``,
-    `*${otp}*`,
-    ``,
-    `صالح لمدة 5 دقائق فقط.`,
-    `لا تشارك هذا الرمز مع أي شخص.`,
-  ].join('\n');
+  if (!WHATSAPP_ENABLED) return false;
+  if (!WHATSAPP_API_TOKEN || !process.env.WHATSAPP_PHONE_NUMBER_ID) return false;
 
+  let normalizedPhone = phone.replace(/^\+/, '').replace(/\s/g, '');
+  if (normalizedPhone.startsWith('0')) normalizedPhone = '2' + normalizedPhone;
+
+  const templateName = process.env.WHATSAPP_OTP_TEMPLATE;
+
+  // Use template if configured (required for first-time outbound messages)
+  if (templateName) {
+    const body = {
+      messaging_product: 'whatsapp',
+      to: normalizedPhone,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: process.env.WHATSAPP_OTP_TEMPLATE_LANG ?? 'ar' },
+        components: [{
+          type: 'body',
+          parameters: [{ type: 'text', text: otp }],
+        }],
+      },
+    };
+
+    try {
+      const response = await fetch(WHATSAPP_API_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${WHATSAPP_API_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        console.error('[WhatsApp OTP] Template send failed:', response.status, err);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('[WhatsApp OTP] Network error:', err);
+      return false;
+    }
+  }
+
+  // Fallback: free-form text (only works within 24h customer service window)
+  const message = [`🔐 رمز التحقق: *${otp}*`, ``, `صالح لمدة 5 دقائق. لا تشاركه مع أحد.`].join('\n');
   return sendWhatsAppMessage(phone, message);
 }
