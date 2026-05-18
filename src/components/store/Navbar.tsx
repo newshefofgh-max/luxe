@@ -45,8 +45,20 @@ export default function Navbar({ announcementContent, navCategories }: NavbarPro
   const { theme, toggleTheme } = useThemeStore();
   const isDark = theme === 'dark';
 
-  const categories = navCategories ?? DEFAULT_CATEGORIES;
+  const [fetchedCategories, setFetchedCategories] = useState<NavCategory[]>([]);
+
+  const categories = navCategories ?? (fetchedCategories.length ? fetchedCategories : DEFAULT_CATEGORIES);
   const t = (en: string, ar: string) => lang === 'ar' ? ar : en;
+
+  useEffect(() => {
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => {
+        const cats: NavCategory[] = data.data?.nav_categories ?? [];
+        if (cats.length) setFetchedCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
