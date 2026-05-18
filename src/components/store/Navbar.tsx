@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useThemeStore } from '@/stores/themeStore';
 import AnnouncementBar from './AnnouncementBar';
 
-interface NavCategory { slug: string; en: string; ar: string; }
+interface NavCategory { slug: string; nameEn: string; nameAr: string; }
 interface NavbarProps {
   announcementContent?: {
     visible?: boolean;
@@ -19,17 +19,9 @@ interface NavbarProps {
     bg_color?: string;
     text_color?: string;
   };
-  navCategories?: NavCategory[];
 }
 
-const DEFAULT_CATEGORIES: NavCategory[] = [
-  { slug: 'bracelets', en: 'Bracelets', ar: 'أساور' },
-  { slug: 'necklaces', en: 'Necklaces', ar: 'قلادات' },
-  { slug: 'rings',     en: 'Rings',     ar: 'خواتم' },
-  { slug: 'sunglasses',en: 'Sunglasses',ar: 'نظارات' },
-];
-
-export default function Navbar({ announcementContent, navCategories }: NavbarProps) {
+export default function Navbar({ announcementContent }: NavbarProps) {
   const pathname  = usePathname();
   const router    = useRouter();
   const [scrolled, setScrolled]       = useState(false);
@@ -45,18 +37,14 @@ export default function Navbar({ announcementContent, navCategories }: NavbarPro
   const { theme, toggleTheme } = useThemeStore();
   const isDark = theme === 'dark';
 
-  const [fetchedCategories, setFetchedCategories] = useState<NavCategory[]>([]);
+  const [categories, setCategories] = useState<NavCategory[]>([]);
 
-  const categories = navCategories ?? (fetchedCategories.length ? fetchedCategories : DEFAULT_CATEGORIES);
   const t = (en: string, ar: string) => lang === 'ar' ? ar : en;
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch('/api/categories')
       .then((r) => r.json())
-      .then((data) => {
-        const cats: NavCategory[] = data.data?.nav_categories ?? [];
-        if (cats.length) setFetchedCategories(cats);
-      })
+      .then((data) => { if (data.data?.length) setCategories(data.data); })
       .catch(() => {});
   }, []);
 
@@ -265,7 +253,7 @@ export default function Navbar({ announcementContent, navCategories }: NavbarPro
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = pathname.includes(`category=${cat.slug}`) ? 'var(--text)' : 'var(--text-muted)')}
             >
-              {lang === 'ar' ? cat.ar : cat.en}
+              {lang === 'ar' ? cat.nameAr : cat.nameEn}
             </Link>
           ))}
         </div>
@@ -410,7 +398,7 @@ export default function Navbar({ announcementContent, navCategories }: NavbarPro
                     className="block px-6 py-3 text-[11px] tracking-[0.15em] uppercase border-b transition-colors"
                     style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
                   >
-                    {lang === 'ar' ? cat.ar : cat.en}
+                    {lang === 'ar' ? cat.nameAr : cat.nameEn}
                   </Link>
                 ))}
               </div>

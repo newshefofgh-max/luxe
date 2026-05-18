@@ -34,14 +34,14 @@ function ProductsContent() {
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch('/api/categories')
       .then((r) => r.json())
       .then((data) => {
-        const nav: { slug: string; ar: string; en: string }[] = data.data?.nav_categories ?? [];
-        if (nav.length > 0) {
+        const cats: { slug: string; nameAr: string; nameEn: string }[] = data.data ?? [];
+        if (cats.length > 0) {
           setCategories([
             { value: '', label: 'الكل', labelEn: 'All' },
-            ...nav.map((c) => ({ value: c.slug, label: c.ar, labelEn: c.en })),
+            ...cats.map((c) => ({ value: c.slug, label: c.nameAr, labelEn: c.nameEn })),
           ]);
         }
       })

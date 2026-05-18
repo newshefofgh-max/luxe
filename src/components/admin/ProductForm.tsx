@@ -21,11 +21,11 @@ export default function ProductForm({ product, onSubmit, loading = false }: Prod
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch('/api/categories')
       .then((r) => r.json())
       .then((data) => {
-        const nav: { slug: string; ar: string }[] = data.data?.nav_categories ?? [];
-        setCategories(nav.map((c) => ({ value: c.slug, label: c.ar })));
+        const cats: { id: string; slug: string; nameAr: string }[] = data.data ?? [];
+        setCategories(cats.map((c) => ({ value: c.slug, label: c.nameAr })));
       })
       .catch(() => {});
   }, []);

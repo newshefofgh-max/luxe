@@ -42,11 +42,11 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch('/api/categories')
       .then((r) => r.json())
       .then((data) => {
-        const nav: { slug: string }[] = data.data?.nav_categories ?? [];
-        if (nav.length > 0) setCategories(['all', ...nav.map((c) => c.slug)]);
+        const cats: { slug: string }[] = data.data ?? [];
+        if (cats.length > 0) setCategories(['all', ...cats.map((c) => c.slug)]);
       })
       .catch(() => {});
   }, []);

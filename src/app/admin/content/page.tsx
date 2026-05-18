@@ -174,6 +174,157 @@ function Card({ title, children, collapsible = false }: { title: string; childre
   );
 }
 
+type DBCategory = { id: string; slug: string; nameAr: string; nameEn: string; sortOrder: number };
+
+function NavCategoriesTab({ token }: { token: string }) {
+  const [cats, setCats] = useState<DBCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [newCat, setNewCat] = useState({ slug: '', nameAr: '', nameEn: '' });
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Record<string, DBCategory>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/categories', { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      setCats(data.data ?? []);
+    } catch { toast.error('فشل التحميل'); }
+    setLoading(false);
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const startEdit = (cat: DBCategory) => setEditing((p) => ({ ...p, [cat.id]: { ...cat } }));
+  const cancelEdit = (id: string) => setEditing((p) => { const n = { ...p }; delete n[id]; return n; });
+
+  const saveEdit = async (id: string) => {
+    const cat = editing[id];
+    if (!cat) return;
+    setSaving(id);
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ slug: cat.slug, nameAr: cat.nameAr, nameEn: cat.nameEn }),
+      });
+      if (!res.ok) { toast.error('فشل الحفظ'); return; }
+      toast.success('تم الحفظ ✓');
+      cancelEdit(id);
+      load();
+    } catch { toast.error('فشل الحفظ'); }
+    setSaving(null);
+  };
+
+  const deleteCat = async (id: string) => {
+    if (!confirm('حذف الفئة؟')) return;
+    setSaving(id);
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) { toast.error('فشل الحذف'); return; }
+      toast.success('تم الحذف ✓');
+      load();
+    } catch { toast.error('فشل الحذف'); }
+    setSaving(null);
+  };
+
+  const addCat = async () => {
+    if (!newCat.slug || !newCat.nameAr || !newCat.nameEn) { toast.error('أدخل جميع الحقول'); return; }
+    setAdding(true);
+    try {
+      const res = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(newCat),
+      });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); toast.error(e.error ?? 'فشل الإضافة'); return; }
+      toast.success('تمت الإضافة ✓');
+      setNewCat({ slug: '', nameAr: '', nameEn: '' });
+      load();
+    } catch { toast.error('فشل الإضافة'); }
+    setAdding(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" /></div>;
+
+  return (
+    <div>
+      <Card title="فئات شريط التصفح">
+        <p className="text-xs text-gray-400 mb-4">التغييرات تظهر فوراً على الموقع بدون بناء.</p>
+        {cats.map((cat) => {
+          const e = editing[cat.id];
+          return (
+            <div key={cat.id} className="grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-900 rounded items-end">
+              <Field label="Slug (URL)">
+                <input value={e ? e.slug : cat.slug} readOnly={!e}
+                  onChange={(ev) => setEditing((p) => ({ ...p, [cat.id]: { ...p[cat.id], slug: ev.target.value } }))}
+                  className={`w-full bg-gray-800 border text-white text-sm px-2 py-1.5 rounded focus:outline-none ${e ? 'border-[#C9A84C]' : 'border-gray-700'}`} />
+              </Field>
+              <Field label="English">
+                <input value={e ? e.nameEn : cat.nameEn} readOnly={!e}
+                  onChange={(ev) => setEditing((p) => ({ ...p, [cat.id]: { ...p[cat.id], nameEn: ev.target.value } }))}
+                  className={`w-full bg-gray-800 border text-white text-sm px-2 py-1.5 rounded focus:outline-none ${e ? 'border-[#C9A84C]' : 'border-gray-700'}`} />
+              </Field>
+              <Field label="عربي">
+                <input value={e ? e.nameAr : cat.nameAr} readOnly={!e} dir="rtl"
+                  onChange={(ev) => setEditing((p) => ({ ...p, [cat.id]: { ...p[cat.id], nameAr: ev.target.value } }))}
+                  className={`w-full bg-gray-800 border text-white text-sm px-2 py-1.5 rounded focus:outline-none ${e ? 'border-[#C9A84C]' : 'border-gray-700'}`} />
+              </Field>
+              <div className="flex gap-1">
+                {e ? (
+                  <>
+                    <button onClick={() => saveEdit(cat.id)} disabled={saving === cat.id}
+                      className="flex-1 bg-[#C9A84C] text-[#1a1a18] text-xs font-bold px-2 py-1.5 rounded hover:bg-yellow-400 disabled:opacity-60">
+                      {saving === cat.id ? '...' : 'حفظ'}
+                    </button>
+                    <button onClick={() => cancelEdit(cat.id)} className="px-2 py-1.5 text-gray-400 hover:text-white text-xs border border-gray-700 rounded">إلغاء</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => startEdit(cat)} className="flex-1 text-xs border border-gray-600 text-gray-300 hover:border-[#C9A84C] hover:text-white px-2 py-1.5 rounded">تعديل</button>
+                    <button onClick={() => deleteCat(cat.id)} disabled={saving === cat.id}
+                      className="px-2 py-1.5 text-red-400 hover:text-red-300 border border-gray-700 rounded disabled:opacity-60">
+                      <Trash2 size={13} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </Card>
+
+      <Card title="إضافة فئة جديدة">
+        <div className="grid grid-cols-4 gap-2 items-end">
+          <Field label="Slug (URL)">
+            <input value={newCat.slug} onChange={(e) => setNewCat((p) => ({ ...p, slug: e.target.value }))}
+              placeholder="e.g. rings"
+              className="w-full bg-gray-900 border border-gray-600 text-white text-sm px-2 py-1.5 rounded focus:outline-none focus:border-[#C9A84C]" />
+          </Field>
+          <Field label="English">
+            <input value={newCat.nameEn} onChange={(e) => setNewCat((p) => ({ ...p, nameEn: e.target.value }))}
+              placeholder="Rings"
+              className="w-full bg-gray-900 border border-gray-600 text-white text-sm px-2 py-1.5 rounded focus:outline-none focus:border-[#C9A84C]" />
+          </Field>
+          <Field label="عربي">
+            <input value={newCat.nameAr} onChange={(e) => setNewCat((p) => ({ ...p, nameAr: e.target.value }))} dir="rtl"
+              placeholder="خواتم"
+              className="w-full bg-gray-900 border border-gray-600 text-white text-sm px-2 py-1.5 rounded focus:outline-none focus:border-[#C9A84C]" />
+          </Field>
+          <button onClick={addCat} disabled={adding}
+            className="flex items-center justify-center gap-1 bg-[#C9A84C] text-[#1a1a18] text-sm font-bold px-4 py-1.5 rounded hover:bg-yellow-400 disabled:opacity-60">
+            <Plus size={14} /> {adding ? '...' : 'إضافة'}
+          </button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function ContentPage() {
   const [activeTab, setActiveTab] = useState<Tab>('announcement');
   const [saving, setSaving]       = useState(false);
@@ -325,37 +476,7 @@ export default function ContentPage() {
       })()}
 
       {/* ─── NAV CATEGORIES ─── */}
-      {activeTab === 'nav' && (() => {
-        type NC = { slug: string; en: string; ar: string }[];
-        const val = get<NC>('nav_categories', []);
-        const set = (v: NC) => setContent((p) => ({ ...p, nav_categories: v }));
-        return (
-          <div>
-            <Card title="فئات شريط التصفح">
-              {val.map((cat, i) => (
-                <div key={i} className="grid grid-cols-3 gap-3 mb-3 p-3 bg-gray-900 rounded">
-                  <Field label="Slug (URL)"><Input value={cat.slug} onChange={(v) => { const a = [...val]; a[i] = { ...cat, slug: v }; set(a); }} /></Field>
-                  <Field label="English"><Input value={cat.en} onChange={(v) => { const a = [...val]; a[i] = { ...cat, en: v }; set(a); }} /></Field>
-                  <Field label="عربي">
-                    <div className="flex gap-2">
-                      <Input value={cat.ar} onChange={(v) => { const a = [...val]; a[i] = { ...cat, ar: v }; set(a); }} />
-                      <button onClick={() => set(val.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-300 px-2"><Trash2 size={14} /></button>
-                    </div>
-                  </Field>
-                </div>
-              ))}
-              <button onClick={() => set([...val, { slug: '', en: '', ar: '' }])}
-                className="flex items-center gap-1 text-xs text-[#C9A84C] hover:text-yellow-300">
-                <Plus size={13} /> إضافة فئة
-              </button>
-            </Card>
-            <button onClick={() => save('nav_categories', val)} disabled={saving}
-              className="flex items-center gap-2 bg-[#C9A84C] text-[#1a1a18] px-6 py-2.5 text-sm font-bold rounded hover:bg-yellow-400 transition-colors disabled:opacity-60">
-              <Save size={15} /> {saving ? 'جاري الحفظ...' : 'حفظ'}
-            </button>
-          </div>
-        );
-      })()}
+      {activeTab === 'nav' && <NavCategoriesTab token={token} />}
 
       {/* ─── HERO SLIDES ─── */}
       {activeTab === 'hero' && (() => {

@@ -131,3 +131,13 @@ model SiteContent {
   value     String   @default("{}")
   updatedAt DateTime @updatedAt
 }
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  nameAr    String
+  nameEn    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

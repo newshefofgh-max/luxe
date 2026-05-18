@@ -118,7 +118,6 @@ export default async function HomePage() {
     <div style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <Navbar
         announcementContent={announcement as Parameters<typeof Navbar>[0]['announcementContent']}
-        navCategories={navCats as Parameters<typeof Navbar>[0]['navCategories']}
       />
 
       {/* ── Hero ── */}
