@@ -88,8 +88,8 @@ export default function AdminDashboardPage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [analyticsRes, ordersRes] = await Promise.all([
-        fetch('/api/admin/analytics?days=30', { headers }),
-        fetch('/api/admin/orders?limit=10&sortBy=createdAt&sortOrder=desc', { headers }),
+        fetch('/api/analytics?days=30', { headers }),
+        fetch('/api/orders?limit=10&sortBy=createdAt&sortOrder=desc', { headers }),
       ]);
 
       if (analyticsRes.ok) {

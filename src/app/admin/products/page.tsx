@@ -54,7 +54,7 @@ export default function AdminProductsPage() {
       if (search) params.set('search', search);
       if (activeFilter !== 'all') params.set('isActive', activeFilter === 'active' ? 'true' : 'false');
 
-      const res = await fetch(`/api/admin/products?${params}`, {
+      const res = await fetch(`/api/products?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -79,7 +79,7 @@ export default function AdminProductsPage() {
     setTogglingId(product._id);
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/products/${product._id}`, {
+      const res = await fetch(`/api/products/${product._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function AdminProductsPage() {
   const deleteProduct = async (id: string) => {
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Returns & Exchanges',
-  description: 'LUXE Accessories returns and exchanges policy.',
+  description: 'Accessory returns and exchanges policy.',
 };
 
 export default function ReturnsPage() {

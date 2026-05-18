@@ -1,4 +1,4 @@
-# Luxe Accessories — Deployment Guide
+# Accessory — Deployment Guide
 
 Complete step-by-step guide to deploy the Egyptian fashion e-commerce application.
 
@@ -64,7 +64,7 @@ Open http://localhost:3000/admin for the admin panel.
 6. Copy the connection string and set in `.env.local`:
 
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/luxe-accessories?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/accessory?retryWrites=true&w=majority
 ```
 
 **Indexes are created automatically** by Mongoose schema definitions.
@@ -136,7 +136,7 @@ curl -X POST "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages" \
 
 ```env
 SMS_API_KEY=your-unifonic-app-sid
-SMS_SENDER_ID=LuxeStore
+SMS_SENDER_ID=Accessory
 ```
 
 **Note**: OTP system tries WhatsApp first, falls back to SMS if WhatsApp fails.
@@ -206,8 +206,8 @@ Use the email + password you set above.
 cd D:\SroShield\ecommerce
 git init
 git add .
-git commit -m "Initial commit: Luxe Accessories e-commerce"
-git remote add origin https://github.com/yourusername/luxe-accessories
+git commit -m "Initial commit: Accessory e-commerce"
+git remote add origin https://github.com/yourusername/accessory
 git push -u origin main
 ```
 
@@ -240,13 +240,13 @@ NEXT_PUBLIC_APP_URL=https://your-store.vercel.app
 # APP
 # ──────────────────────────────────────────────────────────────
 NEXT_PUBLIC_APP_URL=https://yourstore.vercel.app
-NEXT_PUBLIC_APP_NAME=Luxe Accessories
+NEXT_PUBLIC_APP_NAME=Accessory
 NODE_ENV=production
 
 # ──────────────────────────────────────────────────────────────
 # DATABASE
 # ──────────────────────────────────────────────────────────────
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/luxe-accessories
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/accessory
 
 # ──────────────────────────────────────────────────────────────
 # AUTHENTICATION
@@ -275,7 +275,7 @@ ADMIN_WHATSAPP_NUMBER=201XXXXXXXXX    # No + sign, Egypt format
 # ──────────────────────────────────────────────────────────────
 SMS_API_KEY=your-unifonic-app-sid
 SMS_API_URL=https://api.unifonic.com/rest/SMS/messages
-SMS_SENDER_ID=LuxeStore
+SMS_SENDER_ID=Accessory
 
 # ──────────────────────────────────────────────────────────────
 # BOSTA SHIPPING

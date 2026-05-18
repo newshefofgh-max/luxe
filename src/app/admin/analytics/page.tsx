@@ -7,53 +7,44 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
-interface AnalyticsSummary {
-  totalOrders: number;
-  pending: number;
-  confirmed: number;
-  shipped: number;
-  delivered: number;
-  cancelled: number;
-  totalRevenue: number;
-  collectedRevenue: number;
-  avgOrderValue: number;
-  fakeOrders: number;
-  fakeOrderRate: number;
-}
-
-interface RevenueDay {
-  _id: string;
-  revenue: number;
-  orders: number;
-}
-
-interface TopProduct {
-  _id: string;
-  name: string;
-  nameAr: string;
-  image: string;
-  totalSold: number;
-  revenue: number;
-}
-
 interface TopGov {
   _id: string;
   count: number;
   revenue: number;
 }
 
+interface TopProductEntry {
+  product: { _id: string; name: string; nameAr: string; images: string[]; price: number };
+  count: number;
+}
+
+interface RevenueDay {
+  date: string;
+  revenue: number;
+}
+
 interface AnalyticsData {
-  summary: AnalyticsSummary;
+  totalOrders: number;
+  pendingOrders: number;
+  confirmedOrders: number;
+  shippedOrders: number;
+  deliveredOrders: number;
+  cancelledOrders: number;
+  totalRevenue: number;
+  collectedRevenue: number;
+  avgOrderValue: number;
+  fakeOrderRate: number;
+  conversionRate: number;
   revenueByDay: RevenueDay[];
-  topProducts: TopProduct[];
+  topProducts: TopProductEntry[];
   topGovernorates: TopGov[];
 }
 
 const STAT_CARDS = [
   { key: 'totalOrders', label: 'إجمالي الطلبات', icon: ShoppingBag, color: 'text-blue-400', bg: 'bg-blue-500/10' },
   { key: 'collectedRevenue', label: 'الإيراد المحصل', icon: DollarSign, color: 'text-green-400', bg: 'bg-green-500/10', suffix: ' جنيه' },
-  { key: 'delivered', label: 'تم التسليم', icon: Package, color: 'text-[#C9A84C]', bg: 'bg-[#C9A84C]/10' },
-  { key: 'cancelled', label: 'ملغي', icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10' },
+  { key: 'deliveredOrders', label: 'تم التسليم', icon: Package, color: 'text-[#C9A84C]', bg: 'bg-[#C9A84C]/10' },
+  { key: 'cancelledOrders', label: 'ملغي', icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10' },
   { key: 'avgOrderValue', label: 'متوسط قيمة الطلب', icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-500/10', suffix: ' جنيه' },
   { key: 'fakeOrderRate', label: 'معدل الطلبات الوهمية', icon: BarChart2, color: 'text-orange-400', bg: 'bg-orange-500/10', suffix: '%' },
 ];
@@ -97,7 +88,7 @@ export default function AnalyticsPage() {
     fetchData();
   }, [days]);
 
-  const maxRevenue = data?.revenueByDay.length
+  const maxRevenue = data?.revenueByDay?.length
     ? Math.max(...data.revenueByDay.map((d) => d.revenue))
     : 1;
 
@@ -111,14 +102,20 @@ export default function AnalyticsPage() {
 
   if (!data) return null;
 
-  const { summary, revenueByDay, topProducts, topGovernorates } = data;
+  const { revenueByDay, topProducts, topGovernorates } = data;
 
   // Status breakdown for bar chart
-  const statusItems = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((s) => ({
-    key: s,
-    count: summary[s as keyof AnalyticsSummary] as number,
-    pct: summary.totalOrders > 0
-      ? Math.round(((summary[s as keyof AnalyticsSummary] as number) / summary.totalOrders) * 100)
+  const statusItems = [
+    { key: 'pending', field: 'pendingOrders' as keyof AnalyticsData },
+    { key: 'confirmed', field: 'confirmedOrders' as keyof AnalyticsData },
+    { key: 'shipped', field: 'shippedOrders' as keyof AnalyticsData },
+    { key: 'delivered', field: 'deliveredOrders' as keyof AnalyticsData },
+    { key: 'cancelled', field: 'cancelledOrders' as keyof AnalyticsData },
+  ].map(({ key, field }) => ({
+    key,
+    count: data[field] as number,
+    pct: data.totalOrders > 0
+      ? Math.round(((data[field] as number) / data.totalOrders) * 100)
       : 0,
   }));
 
@@ -141,7 +138,7 @@ export default function AnalyticsPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         {STAT_CARDS.map((card, i) => {
-          const val = summary[card.key as keyof AnalyticsSummary];
+          const val = data[card.key as keyof AnalyticsData] as number;
           return (
             <motion.div
               key={card.key}
@@ -173,7 +170,7 @@ export default function AnalyticsPage() {
               {revenueByDay.map((day) => {
                 const height = maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0;
                 return (
-                  <div key={day._id} className="flex flex-col items-center gap-1 min-w-[30px] group">
+                  <div key={day.date} className="flex flex-col items-center gap-1 min-w-[30px] group">
                     <div
                       className="relative w-full bg-[#C9A84C] rounded-t-sm transition-all hover:bg-[#e8c85a]"
                       style={{ height: `${Math.max(height, 2)}%` }}
@@ -183,7 +180,7 @@ export default function AnalyticsPage() {
                       </div>
                     </div>
                     <span className="text-xs text-gray-500 rotate-45 origin-left whitespace-nowrap">
-                      {day._id.slice(5)}
+                      {day.date.slice(5)}
                     </span>
                   </div>
                 );
@@ -219,14 +216,14 @@ export default function AnalyticsPage() {
         <div className="bg-gray-800 border border-gray-700 rounded-sm p-6">
           <h2 className="text-white font-semibold mb-4">أفضل 5 منتجات</h2>
           <div className="space-y-4">
-            {topProducts.map((p, i) => (
-              <div key={p._id} className="flex items-center gap-3">
+            {topProducts.map((tp, i) => (
+              <div key={tp.product._id} className="flex items-center gap-3">
                 <span className="text-[#C9A84C] font-bold w-5 text-sm">{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm truncate">{p.nameAr || p.name}</p>
-                  <p className="text-gray-400 text-xs">{p.totalSold} قطعة مباعة</p>
+                  <p className="text-white text-sm truncate">{tp.product.nameAr || tp.product.name}</p>
+                  <p className="text-gray-400 text-xs">{tp.count} قطعة مباعة</p>
                 </div>
-                <span className="text-green-400 text-sm font-medium">{p.revenue} جنيه</span>
+                <span className="text-green-400 text-sm font-medium">EGP {tp.product.price.toLocaleString()}</span>
               </div>
             ))}
             {topProducts.length === 0 && (

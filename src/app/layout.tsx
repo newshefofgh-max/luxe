@@ -7,8 +7,8 @@ import ThemeApplier from '@/components/ThemeApplier';
 
 export const metadata: Metadata = {
   title: {
-    default: 'LUXE Accessories | إكسسوارات لوكس',
-    template: '%s | LUXE Accessories',
+    default: 'Accessory | إكسسوارات',
+    template: '%s | Accessory',
   },
   description:
     'Premium Egyptian fashion accessories — bracelets, necklaces, rings, and sunglasses. Shop with confidence, pay on delivery. إكسسوارات مصرية فاخرة — ادفع عند الاستلام.',
@@ -26,21 +26,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ar_EG',
     alternateLocale: 'en_US',
-    siteName: 'LUXE Accessories',
-    title: 'LUXE Accessories | إكسسوارات لوكس',
+    siteName: 'Accessory',
+    title: 'Accessory | إكسسوارات',
     description: 'Premium Egyptian fashion accessories. Pay on delivery across all governorates.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'LUXE Accessories',
+        alt: 'Accessory',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LUXE Accessories | إكسسوارات لوكس',
+    title: 'Accessory | إكسسوارات',
     description: 'Premium Egyptian fashion accessories. Pay on delivery.',
     images: ['/og-image.jpg'],
   },

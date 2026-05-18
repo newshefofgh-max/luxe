@@ -2,19 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Google Fonts fallbacks ─────────────────────────────────────────────────── */
-/* Playfair Display: editorial serif for .section-title headings                  */
-/* DM Sans: used as fallback when FT System Blank font file is not yet placed     */
+/* ─── Google Fonts ───────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=DM+Sans:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-/* ─── FT System Blank (English body / UI font) ────────────────────────────────
-   Drop your .woff2 / .woff files into /public/fonts/
-   Expected files:
-     FTSystemBlank-Regular.woff2
-     FTSystemBlank-Medium.woff2
-     FTSystemBlank-Bold.woff2
-     FTSystemBlank-Black.woff2
-   ──────────────────────────────────────────────────────────────────────────── */
+/* ─── FT System Blank (English body / UI font) ──────────────────────────────── */
 @font-face {
   font-family: 'FT System Blank';
   src: local('FT System Blank Regular'),
@@ -52,10 +43,7 @@
   font-display: swap;
 }
 
-/* ─── Milligram Arabic Trial Bold (Arabic font) ───────────────────────────────
-   Expected file:
-     MilligramArabicTrial-Bold.woff2
-   ──────────────────────────────────────────────────────────────────────────── */
+/* ─── Milligram Arabic Trial Bold ────────────────────────────────────────────── */
 @font-face {
   font-family: 'Milligram Arabic';
   src: local('Milligram Arabic Trial Bold'),
@@ -66,7 +54,6 @@
   font-style: normal;
   font-display: swap;
 }
-/* Map all weights to the Bold cut since that's the only one in the trial */
 @font-face {
   font-family: 'Milligram Arabic';
   src: local('Milligram Arabic Trial Bold'),
@@ -78,23 +65,24 @@
   font-display: swap;
 }
 
-/* ─── Theme tokens ───────────────────────────────────────────────────────────── */
+/* ─── Theme tokens — Velvet Accessories palette ──────────────────────────────── */
 :root {
-  /* Accessorize-faithful: white base, light pink tints, black text */
-  --bg:            #ffffff;
-  --bg-alt:        #FFF5FC;
+  /* Cream/warm-white base (Velvet style) */
+  --bg:            #FAF9F7;
+  --bg-alt:        #F0EDE8;
   --surface:       #ffffff;
-  --surface-alt:   #FFE8F6;
-  --text:          #1b1710;
-  --text-muted:    #6b6360;
-  --text-faint:    #adadad;
-  --border:        rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.14);
-  --pink:          #E91E8C;
-  --pink-dark:     #C2185B;
-  --pink-muted:    rgba(233, 30, 140, 0.10);
-  --pink-light:    #FFE1F9;
-  --scrollbar-bg:  #fff5fc;
+  --surface-alt:   #EDE9E3;
+  --text:          #1a1a18;
+  --text-muted:    #5c5853;
+  --text-faint:    #a09890;
+  --border:        rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  /* Gold accent (Velvet / luxury tone) — reuses --pink var for component compat */
+  --pink:          #C9A84C;
+  --pink-dark:     #A8891A;
+  --pink-muted:    rgba(201, 168, 76, 0.10);
+  --pink-light:    #FFF8E7;
+  --scrollbar-bg:  #F0EDE8;
 }
 
 html.dark {
@@ -107,10 +95,10 @@ html.dark {
   --text-faint:    #6b7280;
   --border:        rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.12);
-  --pink:          #E91E8C;
-  --pink-dark:     #C2185B;
-  --pink-muted:    rgba(233, 30, 140, 0.12);
-  --pink-light:    rgba(233, 30, 140, 0.15);
+  --pink:          #C9A84C;
+  --pink-dark:     #A8891A;
+  --pink-muted:    rgba(201, 168, 76, 0.12);
+  --pink-light:    rgba(201, 168, 76, 0.15);
   --scrollbar-bg:  #0d0d1a;
 }
 
@@ -119,7 +107,6 @@ html.dark {
 html { scroll-behavior: smooth; }
 
 body {
-  /* FT System Blank with DM Sans as fallback */
   font-family: 'FT System Blank', 'DM Sans', 'Inter', system-ui, sans-serif;
   font-weight: 500;
   background-color: var(--bg);
@@ -127,7 +114,6 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Arabic: Milligram Arabic Trial Bold with Cairo as fallback */
 [dir="rtl"] body,
 .font-arabic,
 [lang="ar"] {
@@ -135,7 +121,6 @@ body {
   font-weight: 700;
 }
 
-/* Inline Arabic text (font-arabic class used on spans/p inside LTR pages) */
 .font-arabic {
   font-family: 'Milligram Arabic', 'Cairo', 'Tahoma', Arial, sans-serif;
   font-weight: 700;
@@ -149,38 +134,39 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 3px; }
 
 /* ─── Selection ──────────────────────────────────────────────────────────────── */
-::selection { background: rgba(233,30,140,0.15); color: #C2185B; }
+::selection { background: rgba(201,168,76,0.18); color: var(--pink-dark); }
 
 /* ─── Components ─────────────────────────────────────────────────────────────── */
 @layer components {
-  /* Accessorize-style buttons: black → pink hover */
+  /* Primary button: black bg → gold hover */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-[#1b1710] text-white font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 bg-[#1a1a18] text-white font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
   }
   .btn-primary:hover {
     background-color: var(--pink);
     color: #ffffff;
   }
 
-  /* Pink filled button */
+  /* Gold filled button */
   .btn-primary-pink {
-    @apply inline-flex items-center justify-center gap-2 text-white font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 text-[#1a1a18] font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
     background-color: var(--pink);
   }
   .btn-primary-pink:hover {
     background-color: var(--pink-dark);
+    color: #ffffff;
   }
 
   /* Outline black → filled black */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 border border-[#1b1710] text-[#1b1710] font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 border border-[#1a1a18] text-[#1a1a18] font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
   }
   .btn-secondary:hover {
-    background-color: #1b1710;
+    background-color: #1a1a18;
     color: #ffffff;
   }
 
-  /* Outline pink → filled pink */
+  /* Outline gold → filled gold */
   .btn-outline-pink {
     @apply inline-flex items-center justify-center gap-2 font-bold px-8 py-3.5 text-sm tracking-widest uppercase transition-all duration-200;
     border: 1px solid var(--pink);
@@ -188,7 +174,7 @@ body {
   }
   .btn-outline-pink:hover {
     background-color: var(--pink);
-    color: #ffffff;
+    color: #1a1a18;
   }
 
   .card {
@@ -236,9 +222,9 @@ body {
 .hero-gradient {
   background: linear-gradient(
     to right,
-    rgba(255,255,255,0.96) 0%,
-    rgba(255,255,255,0.82) 40%,
-    rgba(255,255,255,0.0) 100%
+    rgba(250,249,247,0.96) 0%,
+    rgba(250,249,247,0.82) 40%,
+    rgba(250,249,247,0.0) 100%
   );
 }
 html.dark .hero-gradient {
@@ -261,20 +247,20 @@ html.dark .hero-gradient {
   animation: shimmer 1.5s infinite;
 }
 
-/* ─── Pink shine ─────────────────────────────────────────────────────────────── */
-@keyframes pinkShine {
+/* ─── Gold shine ─────────────────────────────────────────────────────────────── */
+@keyframes goldShine {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-.pink-shine {
-  background: linear-gradient(90deg, #E91E8C 0%, #ff80c8 50%, #E91E8C 100%);
+.pink-shine,
+.gold-shine {
+  background: linear-gradient(90deg, #C9A84C 0%, #E8C86A 50%, #C9A84C 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: pinkShine 3s linear infinite;
+  animation: goldShine 3s linear infinite;
 }
-.gold-shine { @apply pink-shine; }
 
 /* ─── Underline hover ────────────────────────────────────────────────────────── */
 .underline-hover {
@@ -291,6 +277,14 @@ html.dark .hero-gradient {
   transition: width 0.25s ease;
 }
 .underline-hover:hover::after { width: 100%; }
+
+/* ─── Announcement bar ticker ────────────────────────────────────────────────── */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track { animation: ticker 28s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
 
 /* ─── RTL ────────────────────────────────────────────────────────────────────── */
 [dir="rtl"] .ltr-only { display: none; }

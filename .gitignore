@@ -46,6 +46,10 @@ next-env.d.ts
 /prisma/*.db
 /prisma/*.db-journal
 /prisma/dev.db*
+dev.db
+dev.db-journal
+dev.db-shm
+dev.db-wal
 
 # logs
 logs

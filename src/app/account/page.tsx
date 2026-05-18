@@ -35,7 +35,7 @@ export default function AccountPage() {
     if (!currentUser) return;
     const fetchOrders = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('accessory_token');
         const { data } = await axios.get('/api/orders/mine', {
           headers: { Authorization: `Bearer ${token}` },
         });

@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Package, ShoppingBag, Tag, BarChart3,
-  LogOut, ChevronLeft, Gem, X
+  LogOut, ChevronLeft, Gem, X, Layers
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard, exact: true },
   { href: '/admin/orders', label: 'الطلبات', icon: ShoppingBag },
   { href: '/admin/products', label: 'المنتجات', icon: Package },
+  { href: '/admin/content', label: 'محتوى الموقع', icon: Layers },
   { href: '/admin/coupons', label: 'كوبونات الخصم', icon: Tag },
   { href: '/admin/analytics', label: 'الإحصائيات', icon: BarChart3 },
 ];

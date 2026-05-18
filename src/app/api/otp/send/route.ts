@@ -31,7 +31,7 @@ async function sendOTPViaSMS(phone: string, otp: string): Promise<boolean> {
       },
       body: JSON.stringify({
         to: normalizedPhone,
-        message: `Your Luxe Accessories verification code: ${otp}. Valid for 5 minutes.`,
+        message: `Your Accessory verification code: ${otp}. Valid for 5 minutes.`,
       }),
     });
 

@@ -118,14 +118,14 @@ export function hasActiveOTP(phone: string): boolean {
 export async function sendOTPViaSMS(phone: string, otp: string): Promise<boolean> {
   const apiKey = process.env.SMS_API_KEY;
   const apiUrl = process.env.SMS_API_URL ?? 'https://api.unifonic.com/rest/SMS/messages';
-  const senderId = process.env.SMS_SENDER_ID ?? 'LuxeStore';
+  const senderId = process.env.SMS_SENDER_ID ?? 'Accessory';
 
   if (!apiKey) {
     console.warn('[SMS] SMS_API_KEY not configured — skipping SMS');
     return false;
   }
 
-  const message = `رمز التحقق الخاص بك في Luxe Accessories: ${otp}\nصالح لمدة 5 دقائق.`;
+  const message = `رمز التحقق الخاص بك في Accessory: ${otp}\nصالح لمدة 5 دقائق.`;
 
   // Normalize to international format
   let normalizedPhone = phone.replace(/\s/g, '');

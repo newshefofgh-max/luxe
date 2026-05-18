@@ -101,7 +101,7 @@ export async function sendOrderConfirmationToCustomer(order: IOrder): Promise<vo
     `سيتم التواصل معك قريباً لتأكيد الطلب.`,
     `شكراً لثقتك بنا! 💛`,
     ``,
-    `Luxe Accessories 💍`,
+    `Accessory 💍`,
   ].join('\n');
 
   const sent = await sendWhatsAppMessage(customer.phone, message);
@@ -209,7 +209,7 @@ export async function sendOrderStatusUpdate(
     lines.push(``, `نعتذر عن الإزعاج. للاستفسار يرجى التواصل معنا.`);
   }
 
-  lines.push(``, `Luxe Accessories 💍`);
+  lines.push(``, `Accessory 💍`);
 
   const sent = await sendWhatsAppMessage(phone, lines.join('\n'));
   if (!sent) {
@@ -224,7 +224,7 @@ export async function sendOrderStatusUpdate(
  */
 export async function sendOTPViaWhatsApp(phone: string, otp: string): Promise<boolean> {
   const message = [
-    `🔐 رمز التحقق الخاص بك في Luxe Accessories:`,
+    `🔐 رمز التحقق الخاص بك في Accessory:`,
     ``,
     `*${otp}*`,
     ``,

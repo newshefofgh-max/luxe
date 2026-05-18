@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   try {
     requireAdmin(req);
     const coupons = await db.coupon.findMany({ orderBy: { createdAt: 'desc' } });
-    return NextResponse.json({ data: { coupons } });
+    return NextResponse.json({ data: { coupons: coupons.map((c) => ({ ...c, _id: c.id })) } });
   } catch (error) {
     if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 });

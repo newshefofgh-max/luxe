@@ -10,50 +10,43 @@ import ReviewsSection from '@/components/store/ReviewsSection';
 import ProductCard from '@/components/store/ProductCard';
 import { IProduct } from '@/types';
 import { ArrowRight } from 'lucide-react';
-import NewsletterForm from '@/components/store/NewsletterForm';
+import { DEFAULT_CONTENT } from '@/lib/defaultContent';
 
 export const metadata: Metadata = {
-  title: 'Luxe Accessories | إكسسوارات لوكس — Premium Egyptian Fashion',
+  title: 'Accessory | إكسسوارات — Premium Egyptian Fashion',
   description: 'Shop luxury Egyptian accessories. Bracelets, necklaces, rings, and sunglasses. Cash on delivery across all governorates.',
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
-const categories = [
-  {
-    slug: 'bracelets',
-    en: 'Bracelets',
-    ar: 'أساور',
-    image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
-  },
-  {
-    slug: 'necklaces',
-    en: 'Necklaces',
-    ar: 'قلادات',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80',
-  },
-  {
-    slug: 'rings',
-    en: 'Rings',
-    ar: 'خواتم',
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
-  },
-  {
-    slug: 'sunglasses',
-    en: 'Sunglasses',
-    ar: 'نظارات',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80',
-  },
-];
+async function getSiteContent(): Promise<Record<string, unknown>> {
+  try {
+    const res = await fetch(`${API_BASE}/content`, { next: { revalidate: 60 } });
+    if (!res.ok) return DEFAULT_CONTENT;
+    const { data } = await res.json();
+    return data ?? DEFAULT_CONTENT;
+  } catch {
+    return DEFAULT_CONTENT;
+  }
+}
 
 async function getFeaturedProducts(): Promise<IProduct[]> {
   try {
-    const res = await fetch(`${API_BASE}/products?featured=true&limit=8`, {
-      next: { revalidate: 300 },
-    });
+    const res = await fetch(`${API_BASE}/products?featured=true&limit=8`, { next: { revalidate: 300 } });
     if (!res.ok) return getMockProducts();
     const data = await res.json();
-    return data.data || getMockProducts();
+    return data.data?.length ? data.data : getMockProducts();
+  } catch {
+    return getMockProducts();
+  }
+}
+
+async function getNewProducts(): Promise<IProduct[]> {
+  try {
+    const res = await fetch(`${API_BASE}/products?sort=newest&limit=8`, { next: { revalidate: 120 } });
+    if (!res.ok) return getMockProducts();
+    const data = await res.json();
+    return data.data?.length ? data.data : getMockProducts();
   } catch {
     return getMockProducts();
   }
@@ -75,11 +68,9 @@ function getMockProducts(): IProduct[] {
     'https://images.unsplash.com/photo-1598560917505-59a3ad559071?w=600&q=80',
     'https://images.unsplash.com/photo-1577803645773-f96470509666?w=600&q=80',
   ];
-
   return Array.from({ length: 8 }, (_, i) => ({
     _id: `mock-${i}`,
-    name: names[i],
-    nameAr: namesAr[i],
+    name: names[i], nameAr: namesAr[i],
     slug: `product-${i + 1}`,
     description: 'Premium luxury accessory crafted with finest materials.',
     descriptionAr: 'إكسسوار فاخر مصنوع من أجود المواد.',
@@ -87,38 +78,101 @@ function getMockProducts(): IProduct[] {
     comparePrice: [399, 600, 250, 450, 350, 680, 500, 420][i],
     images: [imgs[i]],
     category: cats[i % 4],
-    variants: [],
-    stock: [12, 3, 8, 2, 15, 6, 4, 9][i],
+    variants: [], stock: [12, 3, 8, 2, 15, 6, 4, 9][i],
     sold: [120, 85, 34, 67, 23, 91, 55, 40][i],
-    isActive: true,
-    isFeatured: true,
-    tags: ['luxury', 'featured'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    isActive: true, isFeatured: true, tags: ['luxury', 'featured'],
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
   }));
 }
 
+type CatItem = { slug: string; en: string; ar: string; image: string };
+type CatSection = { tag_en?: string; tag_ar?: string; title_en?: string; title_ar?: string; items?: CatItem[] };
+type CodBanner = { tag_en?: string; tag_ar?: string; heading_ar?: string; text_en?: string; text_ar?: string; cta_en?: string };
+type FeaturedSection = { tag_en?: string; title_en?: string };
+
 export default async function HomePage() {
-  const featured = await getFeaturedProducts();
+  const [content, featured, newProducts] = await Promise.all([
+    getSiteContent(),
+    getFeaturedProducts(),
+    getNewProducts(),
+  ]);
+
+  const announcement = content.announcement_bar as Record<string, unknown> | undefined;
+  const heroSlides   = content.hero_slides as unknown[] | undefined;
+  const navCats      = content.nav_categories as unknown[] | undefined;
+  const trustBadges  = content.trust_badges as unknown[] | undefined;
+  const catSection   = (content.categories_section ?? {}) as CatSection;
+  const featSection  = (content.featured_section ?? {}) as FeaturedSection;
+  const codBanner    = (content.cod_banner ?? {}) as CodBanner;
+  const footerData   = content.footer as Record<string, unknown> | undefined;
+  const reviews      = content.reviews as unknown[] | undefined;
+
+  const catItems: CatItem[] = catSection.items ?? [
+    { slug: 'bracelets', en: 'Bracelets', ar: 'أساور', image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80' },
+    { slug: 'necklaces', en: 'Necklaces', ar: 'قلادات', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80' },
+    { slug: 'rings',     en: 'Rings',     ar: 'خواتم',  image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80' },
+    { slug: 'sunglasses',en: 'Sunglasses',ar: 'نظارات', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80' },
+  ];
 
   return (
     <div style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
-      <Navbar />
+      <Navbar
+        announcementContent={announcement as Parameters<typeof Navbar>[0]['announcementContent']}
+        navCategories={navCats as Parameters<typeof Navbar>[0]['navCategories']}
+      />
 
-      {/* ── Hero ────────────────────────────────────────────────────── */}
-      <HeroBanner />
+      {/* ── Hero ── */}
+      <HeroBanner slides={heroSlides as Parameters<typeof HeroBanner>[0]['slides']} />
 
-      {/* ── Trust strip ─────────────────────────────────────────────── */}
-      <TrustBadges />
+      {/* ── Trust strip ── */}
+      <TrustBadges badges={trustBadges as Parameters<typeof TrustBadges>[0]['badges']} />
 
-      {/* ── Shop by Category ────────────────────────────────────────── */}
+      {/* ── New Arrivals ── */}
       <section className="py-24" style={{ backgroundColor: 'var(--bg)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section header */}
           <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="section-tag mb-3">Shop by Category</p>
-              <h2 className="section-title">Our Collections</h2>
+              <p className="section-tag mb-3">New In</p>
+              <h2 className="section-title">Latest Arrivals</h2>
+            </div>
+          </div>
+
+          {/* Product grid with gradient fade */}
+          <div className="relative">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {newProducts.map((product, i) => (
+                <ProductCard key={product._id} product={product} index={i} />
+              ))}
+            </div>
+
+            {/* Gradient fade over the last row */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to bottom, transparent 0%, var(--bg) 100%)',
+              }}
+            />
+          </div>
+
+          {/* View All button */}
+          <div className="mt-2 text-center">
+            <Link
+              href="/products?sort=newest"
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              View All Products <ArrowRight size={14} strokeWidth={1.5} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Shop by Category ── */}
+      <section className="py-24" style={{ backgroundColor: 'var(--bg-alt)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="section-tag mb-3">{catSection.tag_en ?? 'Shop by Category'}</p>
+              <h2 className="section-title">{catSection.title_en ?? 'Our Collections'}</h2>
             </div>
             <Link
               href="/products"
@@ -129,9 +183,9 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Category grid */}
+          {/* 4-col category grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {categories.map((cat) => (
+            {catItems.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
@@ -142,15 +196,11 @@ export default async function HomePage() {
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${cat.image})` }}
                 />
-                {/* Subtle bottom gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="text-white font-display text-xl font-normal italic mb-0.5">
-                    {cat.en}
-                  </h3>
+                  <h3 className="text-white font-display text-xl font-normal italic mb-0.5">{cat.en}</h3>
                   <p className="font-arabic text-white/70 text-sm mb-3">{cat.ar}</p>
-                  <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase text-white/60 group-hover:text-white transition-colors group-hover:gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase text-white/60 group-hover:text-white transition-colors group-hover:gap-2.5">
                     Shop <ArrowRight size={11} strokeWidth={1.5} />
                   </span>
                 </div>
@@ -160,13 +210,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Best Sellers ─────────────────────────────────────────────── */}
-      <section className="py-24" style={{ backgroundColor: 'var(--bg-alt)' }}>
+      {/* ── Best Sellers ── */}
+      <section className="py-24" style={{ backgroundColor: 'var(--bg)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="section-tag mb-3">Best Sellers</p>
-              <h2 className="section-title">Most Loved Pieces</h2>
+              <p className="section-tag mb-3">{featSection.tag_en ?? 'Best Sellers'}</p>
+              <h2 className="section-title">{featSection.title_en ?? 'Most Loved Pieces'}</h2>
             </div>
             <Link
               href="/products?sort=popular"
@@ -184,106 +234,37 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-10 text-center sm:hidden">
-            <Link href="/products?sort=popular" className="btn-secondary">
-              View All
-            </Link>
+            <Link href="/products?sort=popular" className="btn-secondary">View All</Link>
           </div>
         </div>
       </section>
 
-      {/* ── Editorial / Why Us ───────────────────────────────────────── */}
-      <section className="py-24" style={{ backgroundColor: 'var(--bg)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            {/* Text side */}
-            <div>
-              <p className="section-tag mb-4">Our Promise</p>
-              <h2 className="section-title mb-6">
-                Crafted for the<br />Modern Egyptian Woman
-              </h2>
-              <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
-                Every piece in our collection is chosen for its quality, craftsmanship, and ability to elevate your everyday look — from the boardroom to a Cairo evening out.
-              </p>
-              <p className="font-arabic text-sm leading-relaxed mb-8" style={{ color: 'var(--text-faint)' }}>
-                كل قطعة في مجموعتنا مختارة بعناية للجودة والأناقة — من المكتب لسهرة القاهرة.
-              </p>
+      {/* ── Reviews ── */}
+      <ReviewsSection reviews={reviews as Parameters<typeof ReviewsSection>[0]['reviews']} />
 
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {[
-                  { en: 'Cash on Delivery', ar: 'دفع عند الاستلام' },
-                  { en: 'Ships Nationwide', ar: 'شحن لكل مصر' },
-                  { en: 'Quality Guarantee', ar: 'ضمان الجودة' },
-                  { en: '7-Day Returns', ar: 'إرجاع ٧ أيام' },
-                ].map((item) => (
-                  <div key={item.en} className="flex items-start gap-2">
-                    <span className="mt-1 w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: 'var(--pink)' }} />
-                    <div>
-                      <p className="text-xs font-medium" style={{ color: 'var(--text)' }}>{item.en}</p>
-                      <p className="font-arabic text-xs" style={{ color: 'var(--text-faint)' }}>{item.ar}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Link href="/products" className="btn-primary">
-                Shop Now <ArrowRight size={14} strokeWidth={1.5} />
-              </Link>
-            </div>
-
-            {/* Image side */}
-            <div className="relative aspect-[4/5] overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80)` }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Reviews ──────────────────────────────────────────────────── */}
-      <ReviewsSection />
-
-      {/* ── COD Banner ───────────────────────────────────────────────── */}
+      {/* ── COD Banner ── */}
       <section
         className="py-20 border-y"
         style={{ backgroundColor: 'var(--surface-alt)', borderColor: 'var(--border-strong)' }}
       >
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <p className="section-tag mb-5">Free Delivery</p>
-          <h2 className="section-title mb-4">
-            الدفع عند الاستلام<br />لجميع المحافظات
+          <p className="section-tag mb-5">{codBanner.tag_en ?? 'Free Delivery'}</p>
+          <h2 className="section-title mb-4" style={{ whiteSpace: 'pre-line' }}>
+            {codBanner.heading_ar ?? 'الدفع عند الاستلام\nلجميع المحافظات'}
           </h2>
           <p className="text-sm leading-relaxed mb-2 max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
-            Order with complete confidence — pay cash when your parcel arrives at your door, anywhere in Egypt.
+            {codBanner.text_en ?? 'Order with complete confidence — pay cash when your parcel arrives at your door, anywhere in Egypt.'}
           </p>
           <p className="font-arabic text-sm mb-10" style={{ color: 'var(--text-faint)' }}>
-            اطلبي بكل أمان وادفعي لما البضاعة توصلك — لجميع محافظات مصر
+            {codBanner.text_ar ?? 'اطلبي بكل أمان وادفعي لما البضاعة توصلك — لجميع محافظات مصر'}
           </p>
           <Link href="/products" className="btn-primary">
-            Shop The Collection <ArrowRight size={14} strokeWidth={1.5} />
+            {codBanner.cta_en ?? 'Shop The Collection'} <ArrowRight size={14} strokeWidth={1.5} />
           </Link>
         </div>
       </section>
 
-      {/* ── Newsletter ───────────────────────────────────────────────── */}
-      <section className="py-20" style={{ backgroundColor: 'var(--bg)' }}>
-        <div className="max-w-md mx-auto px-4 text-center">
-          <p className="section-tag mb-4">Stay in the loop</p>
-          <h3 className="font-display text-3xl font-black italic mb-3" style={{ color: 'var(--text)' }}>
-            New arrivals, first.
-          </h3>
-          <p className="font-arabic text-sm mb-8" style={{ color: 'var(--text-muted)' }}>
-            اشتركي وكوني أول من يعرف بالعروض والمنتجات الجديدة
-          </p>
-          <NewsletterForm />
-          <p className="text-xs mt-3 font-arabic" style={{ color: 'var(--text-faint)' }}>
-            لا سبام — نوصلك بس بأهم الأخبار
-          </p>
-        </div>
-      </section>
-
-      <Footer />
+      <Footer content={footerData as Parameters<typeof Footer>[0]['content']} />
     </div>
   );
 }

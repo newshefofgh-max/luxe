@@ -41,7 +41,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     const items = order.items.map((i) => ({ ...i, _id: i.id, selectedVariants: JSON.parse(i.selectedVariants) }));
-    return NextResponse.json({ data: { order: shapeOrder(order as unknown as Record<string, unknown>, items, order.statusHistory) } });
+    return NextResponse.json({ success: true, data: shapeOrder(order as unknown as Record<string, unknown>, items, order.statusHistory) });
   } catch (error) {
     console.error('[GET /api/orders/[id]]', error);
     return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
@@ -61,10 +61,19 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const newStatus = body.status as string;
+    const newStatus = body.status as string | undefined;
     const note = body.note as string | undefined;
     const trackingNumber = body.trackingNumber as string | undefined;
     const cancelReason = body.cancelReason as string | undefined;
+
+    // Tracking-number-only update (no status change)
+    if (!newStatus && trackingNumber !== undefined) {
+      await db.order.update({ where: { id }, data: { trackingNumber } });
+      const updated = await db.order.findUnique({ where: { id }, include: { items: true, statusHistory: { orderBy: { timestamp: 'asc' } } } });
+      if (!updated) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      const updatedItems = updated.items.map((i) => ({ ...i, _id: i.id, selectedVariants: JSON.parse(i.selectedVariants) }));
+      return NextResponse.json({ success: true, data: shapeOrder(updated as unknown as Record<string, unknown>, updatedItems, updated.statusHistory) });
+    }
 
     if (!newStatus) return NextResponse.json({ error: 'status field is required' }, { status: 400 });
 
@@ -121,7 +130,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     sendOrderStatusUpdate(customerPhone, order.orderNumber, newStatus as 'confirmed', finalTrackingNumber).catch(console.error);
 
-    return NextResponse.json({ data: { id: order.id, orderNumber: order.orderNumber, status: newStatus, trackingNumber: finalTrackingNumber, cancelReason } });
+    const updatedOrder = await db.order.findUnique({ where: { id }, include: { items: true, statusHistory: { orderBy: { timestamp: 'asc' } } } });
+    if (!updatedOrder) return NextResponse.json({ error: 'Order not found after update' }, { status: 404 });
+    const updatedItems = updatedOrder.items.map((i) => ({ ...i, _id: i.id, selectedVariants: JSON.parse(i.selectedVariants) }));
+    return NextResponse.json({ success: true, data: shapeOrder(updatedOrder as unknown as Record<string, unknown>, updatedItems, updatedOrder.statusHistory) });
   } catch (error) {
     if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error('[PATCH /api/orders/[id]]', error);

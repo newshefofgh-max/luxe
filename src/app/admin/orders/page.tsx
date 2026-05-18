@@ -89,7 +89,7 @@ export default function AdminOrdersPage() {
       if (dateFrom) params.set('dateFrom', dateFrom);
       if (dateTo) params.set('dateTo', dateTo);
 
-      const res = await fetch(`/api/admin/orders?${params}`, {
+      const res = await fetch(`/api/orders?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -108,7 +108,7 @@ export default function AdminOrdersPage() {
   const fetchStats = useCallback(async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch('/api/admin/orders/stats', {
+      const res = await fetch('/api/orders/stats', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -144,7 +144,7 @@ export default function AdminOrdersPage() {
     setUpdatingStatus(orderId);
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+      const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

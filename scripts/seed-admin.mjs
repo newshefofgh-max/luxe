@@ -30,7 +30,7 @@ try {
 }
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || 'admin@luxeaccessories.eg';
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || 'admin@accessory.eg';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin1234!';
 const ADMIN_NAME     = 'Admin';
 const ADMIN_PHONE    = '01000000000';

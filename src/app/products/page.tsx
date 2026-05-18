@@ -191,7 +191,7 @@ function ProductsContent() {
                         onClick={() => updateParam('category', cat.value)}
                         className={`px-4 py-1.5 text-sm rounded-sm border transition-colors ${
                           category === cat.value
-                            ? 'bg-[#E91E8C] text-#ffffff border-[#E91E8C]'
+                            ? 'bg-[#E91E8C] text-white border-[#E91E8C]'
                             : 'border-theme-border text-[var(--text-faint)] hover:border-[#E91E8C] hover:text-[var(--text)]'
                         }`}
                       >
@@ -252,7 +252,7 @@ function ProductsContent() {
                 onClick={() => updateParam('category', cat.value)}
                 className={`whitespace-nowrap px-5 py-2 text-sm rounded-sm border transition-colors ${
                   category === cat.value
-                    ? 'bg-[#E91E8C] text-#ffffff border-[#E91E8C] font-semibold'
+                    ? 'bg-[#E91E8C] text-white border-[#E91E8C] font-semibold'
                     : 'border-theme-border text-[var(--text-faint)] hover:border-[#E91E8C] hover:text-[var(--text)]'
                 }`}
               >
@@ -281,7 +281,7 @@ function ProductsContent() {
                   onClick={() => setPage(p)}
                   className={`w-10 h-10 text-sm rounded-sm border transition-colors ${
                     p === page
-                      ? 'bg-[#E91E8C] text-#ffffff border-[#E91E8C] font-bold'
+                      ? 'bg-[#E91E8C] text-white border-[#E91E8C] font-bold'
                       : 'border-theme-border text-[var(--text-faint)] hover:border-[#E91E8C]'
                   }`}
                 >

@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // On mount: restore user from localStorage token
   useEffect(() => {
     const restoreSession = async () => {
-      const token = localStorage.getItem('luxe_token');
+      const token = localStorage.getItem('accessory_token');
       if (!token) {
         setIsLoading(false);
         return;
@@ -43,12 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         if (res.ok) {
           const data = await res.json();
-          setCurrentUser(data.data);
+          setCurrentUser(data.data.user);
         } else {
-          localStorage.removeItem('luxe_token');
+          localStorage.removeItem('accessory_token');
         }
       } catch {
-        localStorage.removeItem('luxe_token');
+        localStorage.removeItem('accessory_token');
       } finally {
         setIsLoading(false);
       }
@@ -66,13 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       const data = await res.json();
 
-      if (res.ok && data.success) {
-        localStorage.setItem('luxe_token', data.token);
-        setCurrentUser(data.data);
+      if (res.ok) {
+        localStorage.setItem('accessory_token', data.data.token);
+        setCurrentUser(data.data.user);
         toast.success('Welcome back! مرحباً بعودتك');
         return true;
       } else {
-        toast.error(data.message || 'Login failed. Please check your credentials.');
+        toast.error(data.error || data.message || 'Login failed. Please check your credentials.');
         return false;
       }
     } catch {
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('luxe_token');
+    localStorage.removeItem('accessory_token');
     setCurrentUser(null);
     toast.success('Logged out successfully.');
   }, []);
@@ -99,13 +99,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       const result = await res.json();
 
-      if (res.ok && result.success) {
-        localStorage.setItem('luxe_token', result.token);
-        setCurrentUser(result.data);
+      if (res.ok) {
+        localStorage.setItem('accessory_token', result.data.token);
+        setCurrentUser(result.data.user);
         toast.success('Account created! حساب تم إنشاؤه');
         return true;
       } else {
-        toast.error(result.message || 'Registration failed.');
+        toast.error(result.error || result.message || 'Registration failed.');
         return false;
       }
     } catch {
@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateProfile = useCallback(async (data: Partial<IUser>): Promise<boolean> => {
-    const token = localStorage.getItem('luxe_token');
+    const token = localStorage.getItem('accessory_token');
     if (!token) return false;
     try {
       const res = await fetch(`${API_BASE}/auth/profile`, {
@@ -129,12 +129,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(data),
       });
       const result = await res.json();
-      if (res.ok && result.success) {
-        setCurrentUser(result.data);
+      if (res.ok) {
+        setCurrentUser(result.data.user);
         toast.success('Profile updated!');
         return true;
       }
-      toast.error(result.message || 'Update failed.');
+      toast.error(result.error || result.message || 'Update failed.');
       return false;
     } catch {
       toast.error('Connection error.');
@@ -161,5 +161,5 @@ export function useAuth(): AuthContextType {
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('luxe_token');
+  return localStorage.getItem('accessory_token');
 }

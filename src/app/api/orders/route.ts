@@ -165,8 +165,13 @@ export async function GET(req: NextRequest) {
       if (dateTo) { const e = new Date(dateTo); e.setHours(23,59,59,999); (where.createdAt as Record<string, unknown>).lte = e; }
     }
 
+    const sortBy = searchParams.get('sortBy') ?? 'createdAt';
+    const sortOrder = (searchParams.get('sortOrder') ?? 'desc') as 'asc' | 'desc';
+    const allowedSortFields: Record<string, unknown> = { createdAt: true, total: true, orderNumber: true, status: true };
+    const orderBy = allowedSortFields[sortBy] ? { [sortBy]: sortOrder } : { createdAt: 'desc' as const };
+
     const [orders, total] = await Promise.all([
-      db.order.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: limit, include: { items: true, statusHistory: true } }),
+      db.order.findMany({ where, orderBy, skip, take: limit, include: { items: true, statusHistory: true } }),
       db.order.count({ where }),
     ]);
 
@@ -177,7 +182,7 @@ export async function GET(req: NextRequest) {
       statusHistory: o.statusHistory,
     }));
 
-    return NextResponse.json({ data: { orders: shaped, total, page, pages: Math.ceil(total / limit), limit } });
+    return NextResponse.json({ success: true, data: shaped, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (error) {
     if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error('[GET /api/orders]', error);

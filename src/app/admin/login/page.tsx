@@ -63,9 +63,9 @@ export default function AdminLoginPage() {
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 mb-4">
-            <span className="text-2xl font-bold text-[#C9A84C]">L</span>
+            <span className="text-2xl font-bold text-[#C9A84C]">A</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Luxe Admin</h1>
+          <h1 className="text-2xl font-bold text-white">Accessory Admin</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to your admin panel</p>
         </div>
 
@@ -87,7 +87,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@luxe.com"
+                  placeholder="admin@accessory.com"
                   className="w-full bg-[#111827] border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] transition-colors text-sm"
                 />
               </div>
@@ -137,7 +137,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          Luxe Accessories Egypt — Admin Panel v1.0
+          Accessory Egypt — Admin Panel v1.0
         </p>
       </motion.div>
     </div>

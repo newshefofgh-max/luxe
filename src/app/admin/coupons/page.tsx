@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, ToggleLeft, ToggleRight, X } from 'lucide-react';
+import { Plus, Trash2, ToggleLeft, ToggleRight, X, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import type { ICoupon } from '@/types';
@@ -25,6 +25,7 @@ export default function CouponsPage() {
     isActive: true,
   });
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchCoupons = async () => {
     try {
@@ -84,6 +85,17 @@ export default function CouponsPage() {
     } catch {
       toast.error('فشل تحديث الكوبون');
     }
+  };
+
+  const deleteCoupon = async (id: string) => {
+    try {
+      await axios.delete(`/api/coupons/${id}`, { headers: authHeader() });
+      setCoupons((prev) => prev.filter((c) => c._id !== id));
+      toast.success('تم حذف الكوبون');
+    } catch {
+      toast.error('فشل حذف الكوبون');
+    }
+    setDeleteConfirm(null);
   };
 
   return (
@@ -149,7 +161,10 @@ export default function CouponsPage() {
                       </button>
                     </td>
                     <td className="py-3 px-4">
-                      <button className="text-red-400 hover:text-red-300">
+                      <button
+                        onClick={() => setDeleteConfirm(coupon._id)}
+                        className="text-red-400 hover:text-red-300 transition-colors"
+                      >
                         <Trash2 size={15} />
                       </button>
                     </td>
@@ -270,6 +285,51 @@ export default function CouponsPage() {
                   {saving ? 'جاري الإنشاء...' : 'إنشاء الكوبون'}
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete confirm modal */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeleteConfirm(null)}
+              className="absolute inset-0 bg-black/70"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative bg-gray-800 border border-gray-700 rounded-sm p-6 w-full max-w-sm"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle size={18} className="text-red-400" />
+                </div>
+                <h3 className="text-white font-bold">حذف الكوبون؟</h3>
+              </div>
+              <p className="text-gray-400 text-sm mb-5" dir="rtl">
+                لا يمكن التراجع عن هذا الإجراء. سيتم حذف الكوبون نهائياً.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={() => deleteCoupon(deleteConfirm)}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-sm font-medium transition-colors"
+                >
+                  حذف
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

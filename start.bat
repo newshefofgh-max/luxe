@@ -1,7 +1,7 @@
 @echo off
-title LUXE Accessories - Dev Server
+title Accessory - Dev Server
 echo.
-echo  Starting LUXE Accessories...
+echo  Starting Accessory...
 echo.
 
 cd /d "%~dp0"

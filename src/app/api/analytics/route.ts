@@ -38,17 +38,25 @@ export async function GET(req: NextRequest) {
       revenueByDayMap[day].revenue += o.total;
       revenueByDayMap[day].orders++;
     }
-    const revenueByDay = Object.entries(revenueByDayMap).sort(([a], [b]) => a.localeCompare(b)).map(([_id, v]) => ({ _id, ...v }));
 
-    // Top products
-    const nonCancelledItems = await db.orderItem.findMany({ where: { order: { status: { not: 'cancelled' } } }, include: { product: { select: { name: true, nameAr: true } } } });
-    const productStats: Record<string, { name: string; nameAr: string; totalSold: number; revenue: number }> = {};
+    // Top products — aggregate by productId then join full product data
+    const nonCancelledItems = await db.orderItem.findMany({ where: { order: { status: { not: 'cancelled' } } } });
+    const productSoldMap: Record<string, number> = {};
     for (const item of nonCancelledItems) {
-      if (!productStats[item.productId]) productStats[item.productId] = { name: item.product.name, nameAr: item.product.nameAr, totalSold: 0, revenue: 0 };
-      productStats[item.productId].totalSold += item.quantity;
-      productStats[item.productId].revenue += item.price * item.quantity;
+      productSoldMap[item.productId] = (productSoldMap[item.productId] ?? 0) + item.quantity;
     }
-    const topProducts = Object.entries(productStats).map(([_id, v]) => ({ _id, ...v })).sort((a, b) => b.totalSold - a.totalSold).slice(0, 5);
+    const topProductIds = Object.entries(productSoldMap).sort(([, a], [, b]) => b - a).slice(0, 5).map(([id]) => id);
+    const topProductDocs = await db.product.findMany({ where: { id: { in: topProductIds } }, select: { id: true, name: true, nameAr: true, images: true, price: true, comparePrice: true, category: true, stock: true, sold: true, isActive: true, isFeatured: true, slug: true } });
+    const topProducts = topProductIds
+      .map((pid) => {
+        const p = topProductDocs.find((d) => d.id === pid);
+        if (!p) return null;
+        return { product: { _id: p.id, name: p.name, nameAr: p.nameAr, images: p.images ? JSON.parse(p.images as string) : [], price: p.price, comparePrice: p.comparePrice, category: p.category, stock: p.stock, sold: p.sold, isActive: p.isActive, isFeatured: p.isFeatured, slug: p.slug }, count: productSoldMap[pid] ?? 0 };
+      })
+      .filter(Boolean);
+
+    // Revenue by day — return { date, revenue } shape
+    const revenueByDayFormatted = Object.entries(revenueByDayMap).sort(([a], [b]) => a.localeCompare(b)).map(([date, v]) => ({ date, revenue: v.revenue }));
 
     // Top governorates
     const govMap: Record<string, { count: number; revenue: number }> = {};
@@ -60,10 +68,29 @@ export async function GET(req: NextRequest) {
     }
     const topGovernorates = Object.entries(govMap).map(([_id, v]) => ({ _id, ...v })).sort((a, b) => b.count - a.count).slice(0, 10);
 
-    const fakeOrders = allOrders.filter((o) => o.status === 'cancelled').length;
-    const fakeOrderRate = totalOrders > 0 ? Math.round((fakeOrders / totalOrders) * 100) : 0;
+    const cancelledCount = statusMap['cancelled']?.count ?? 0;
+    const fakeOrderRate = totalOrders > 0 ? Math.round((cancelledCount / totalOrders) * 100) : 0;
+    const conversionRate = totalOrders > 0 ? Math.round(((statusMap['delivered']?.count ?? 0) / totalOrders) * 100) : 0;
 
-    return NextResponse.json({ data: { summary: { totalOrders, pending: statusMap['pending']?.count ?? 0, confirmed: statusMap['confirmed']?.count ?? 0, shipped: statusMap['shipped']?.count ?? 0, delivered: statusMap['delivered']?.count ?? 0, cancelled: statusMap['cancelled']?.count ?? 0, totalRevenue: Object.values(statusMap).reduce((s, v) => s + v.revenue, 0), collectedRevenue: deliveredRevenue, avgOrderValue, fakeOrders, fakeOrderRate }, revenueByDay, topProducts, topGovernorates } });
+    return NextResponse.json({
+      success: true,
+      data: {
+        totalOrders,
+        pendingOrders: statusMap['pending']?.count ?? 0,
+        confirmedOrders: statusMap['confirmed']?.count ?? 0,
+        shippedOrders: statusMap['shipped']?.count ?? 0,
+        deliveredOrders: statusMap['delivered']?.count ?? 0,
+        cancelledOrders: cancelledCount,
+        totalRevenue: Object.values(statusMap).reduce((s, v) => s + v.revenue, 0),
+        collectedRevenue: deliveredRevenue,
+        conversionRate,
+        fakeOrderRate,
+        topProducts,
+        revenueByDay: revenueByDayFormatted,
+        topGovernorates,
+        avgOrderValue,
+      },
+    });
   } catch (error) {
     if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error('[GET /api/analytics]', error);

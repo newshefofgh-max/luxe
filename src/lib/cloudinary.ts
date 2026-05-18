@@ -39,7 +39,7 @@ export interface OptimizeOptions {
  */
 export async function uploadImage(
   file: Buffer,
-  folder: string = 'luxe-accessories'
+  folder: string = 'accessory'
 ): Promise<UploadResult> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -83,7 +83,7 @@ export async function uploadImage(
  */
 export async function uploadBase64Image(
   dataUrl: string,
-  folder: string = 'luxe-accessories'
+  folder: string = 'accessory'
 ): Promise<UploadResult> {
   const result = await cloudinary.uploader.upload(dataUrl, {
     folder,

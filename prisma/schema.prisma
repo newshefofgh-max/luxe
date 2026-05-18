@@ -124,3 +124,10 @@ model OTP {
   attempts  Int      @default(0)
   createdAt DateTime @default(now())
 }
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @default("{}")
+  updatedAt DateTime @updatedAt
+}

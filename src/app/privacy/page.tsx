@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How LUXE Accessories collects and uses your personal data.',
+  description: 'How Accessory collects and uses your personal data.',
 };
 
 export default function PrivacyPage() {

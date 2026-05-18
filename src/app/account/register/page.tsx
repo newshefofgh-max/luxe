@@ -39,7 +39,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      toast.success('Account created! Welcome to LUXE.');
+      toast.success('Account created! Welcome to Accessory.');
       router.push('/account');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Registration failed';

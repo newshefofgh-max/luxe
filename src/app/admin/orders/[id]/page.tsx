@@ -73,7 +73,7 @@ export default function OrderDetailPage() {
   const fetchOrder = async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/orders/${id}`, {
+      const res = await fetch(`/api/orders/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -94,7 +94,7 @@ export default function OrderDetailPage() {
     setUpdating(true);
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/orders/${order._id}/status`, {
+      const res = await fetch(`/api/orders/${order._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function OrderDetailPage() {
     setUpdating(true);
     try {
       const token = localStorage.getItem('admin_token');
-      await fetch(`/api/admin/orders/${order._id}/tracking`, {
+      await fetch(`/api/orders/${order._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export default function OrderDetailPage() {
       order.status === 'confirmed' ? 'تم تأكيده' :
       order.status === 'shipped' ? `تم شحنه - رقم التتبع: ${order.trackingNumber || 'قريباً'}` :
       order.status === 'delivered' ? 'تم توصيله' : 'تم استلامه'
-    }.\nشكراً لتعاملك مع Luxe Accessories.`;
+    }.\nشكراً لتعاملك مع Accessory.`;
     const phone = order.customer.phone.replace(/\D/g, '');
     const formattedPhone = phone.startsWith('0') ? '2' + phone : phone;
     window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(msg)}`, '_blank');

@@ -15,67 +15,17 @@ interface Review {
   verified: boolean;
 }
 
-const reviews: Review[] = [
-  {
-    id: 1,
-    name: 'منى إبراهيم',
-    city: 'القاهرة',
-    rating: 5,
-    comment: 'والله البضاعة روعة! الأسورة وصلت في كيس فاخر جداً والشغل محكم. أحسن من اللي توقعته بكتير. هطلب تاني قريب.',
-    date: '٥ أبريل ٢٠٢٤',
-    product: 'Gold Chain Bracelet',
-    verified: true,
-  },
-  {
-    id: 2,
-    name: 'سارة محمد',
-    city: 'الإسكندرية',
-    rating: 5,
-    comment: 'القلادة تحفة فعلاً، اتهدت لي من أختي وانبهرت باللي شوفته. الذهب اللون ثابت ومش بيتأثر بالمياه.',
-    date: '١٢ مارس ٢٠٢٤',
-    product: 'Pearl Drop Necklace',
-    verified: true,
-  },
-  {
-    id: 3,
-    name: 'دينا علي',
-    city: 'الجيزة',
-    rating: 5,
-    comment: 'خير ما شوفت متجر سريع في التوصيل وأمين! طلبت الخاتم يوم الاتنين ووصل الأربعاء. والباقي التغليف كان هدية جاهزة.',
-    date: '٢٠ فبراير ٢٠٢٤',
-    product: 'Statement Ring',
-    verified: true,
-  },
-  {
-    id: 4,
-    name: 'ريم عبد الله',
-    city: 'المنصورة',
-    rating: 5,
-    comment: 'النظارات الشمسية أنيقة جداً ومريحة على الوجه. السعر معقول جداً على الجودة دي. كل صاحباتي اتسألوا عنها!',
-    date: '٨ يناير ٢٠٢٤',
-    product: 'Vintage Sunglasses',
-    verified: true,
-  },
-  {
-    id: 5,
-    name: 'نور حسن',
-    city: 'أسيوط',
-    rating: 5,
-    comment: 'أول مرة أشتري اونلاين وكنت خايفة، بس الحمد لله التجربة كانت ممتازة. دفعت عند الاستلام وما فيش مشكلة.',
-    date: '٢٥ ديسمبر ٢٠٢٣',
-    product: 'Gold Bangle Set',
-    verified: true,
-  },
-  {
-    id: 6,
-    name: 'مريم خالد',
-    city: 'طنطا',
-    rating: 4,
-    comment: 'إكسسوارات جميلة ومميزة. التوصيل وصل في الموعد وخدمة العملاء كانت متعاونة جداً لما اتصلت. أنصح بيه بجد.',
-    date: '١٤ نوفمبر ٢٠٢٣',
-    product: 'Silver Choker',
-    verified: true,
-  },
+interface ReviewsSectionProps {
+  reviews?: Review[];
+}
+
+const DEFAULT_REVIEWS: Review[] = [
+  { id: 1, name: 'منى إبراهيم', city: 'القاهرة', rating: 5, comment: 'والله البضاعة روعة! الأسورة وصلت في كيس فاخر جداً والشغل محكم. أحسن من اللي توقعته بكتير.', date: '٥ أبريل ٢٠٢٤', product: 'Gold Chain Bracelet', verified: true },
+  { id: 2, name: 'سارة محمد', city: 'الإسكندرية', rating: 5, comment: 'القلادة تحفة فعلاً، اتهدت لي من أختي وانبهرت باللي شوفته. الذهب اللون ثابت ومش بيتأثر بالمياه.', date: '١٢ مارس ٢٠٢٤', product: 'Pearl Drop Necklace', verified: true },
+  { id: 3, name: 'دينا علي', city: 'الجيزة', rating: 5, comment: 'خير ما شوفت متجر سريع في التوصيل وأمين! طلبت الخاتم يوم الاتنين ووصل الأربعاء.', date: '٢٠ فبراير ٢٠٢٤', product: 'Statement Ring', verified: true },
+  { id: 4, name: 'ريم عبد الله', city: 'المنصورة', rating: 5, comment: 'النظارات الشمسية أنيقة جداً ومريحة على الوجه. السعر معقول جداً على الجودة دي.', date: '٨ يناير ٢٠٢٤', product: 'Vintage Sunglasses', verified: true },
+  { id: 5, name: 'نور حسن', city: 'أسيوط', rating: 5, comment: 'أول مرة أشتري اونلاين وكنت خايفة، بس الحمد لله التجربة كانت ممتازة. دفعت عند الاستلام.', date: '٢٥ ديسمبر ٢٠٢٣', product: 'Gold Bangle Set', verified: true },
+  { id: 6, name: 'مريم خالد', city: 'طنطا', rating: 4, comment: 'إكسسوارات جميلة ومميزة. التوصيل وصل في الموعد وخدمة العملاء كانت متعاونة جداً.', date: '١٤ نوفمبر ٢٠٢٣', product: 'Silver Choker', verified: true },
 ];
 
 function Stars({ n }: { n: number }) {
@@ -86,10 +36,7 @@ function Stars({ n }: { n: number }) {
           key={s}
           size={12}
           strokeWidth={1}
-          style={{
-            color: 'var(--pink)',
-            fill: s <= n ? 'var(--pink)' : 'transparent',
-          }}
+          style={{ color: 'var(--pink)', fill: s <= n ? 'var(--pink)' : 'transparent' }}
         />
       ))}
     </div>
@@ -98,11 +45,13 @@ function Stars({ n }: { n: number }) {
 
 const PER_PAGE = 3;
 
-export default function ReviewsSection() {
+export default function ReviewsSection({ reviews = DEFAULT_REVIEWS }: ReviewsSectionProps) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(reviews.length / PER_PAGE);
   const visible    = reviews.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
-  const avg        = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+  const avg        = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : '5.0';
 
   return (
     <section className="py-24" style={{ backgroundColor: 'var(--bg-alt)' }}>
@@ -112,15 +61,8 @@ export default function ReviewsSection() {
         <div className="text-center mb-16">
           <p className="section-tag mb-4">Customer Reviews</p>
           <h2 className="section-title mb-8">What Our Customers Say</h2>
-
-          {/* Average */}
           <div className="inline-flex flex-col items-center gap-2">
-            <span
-              className="font-display text-5xl font-black italic"
-              style={{ color: 'var(--text)' }}
-            >
-              {avg}
-            </span>
+            <span className="font-display text-5xl font-black italic" style={{ color: 'var(--text)' }}>{avg}</span>
             <Stars n={5} />
             <p className="text-xs tracking-wider uppercase" style={{ color: 'var(--text-faint)' }}>
               {reviews.length} verified reviews
@@ -146,50 +88,26 @@ export default function ReviewsSection() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
                   className="p-7 border flex flex-col gap-4"
-                  style={{
-                    backgroundColor: 'var(--surface)',
-                    borderColor: 'var(--border-strong)',
-                  }}
+                  style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-strong)' }}
                 >
                   <Stars n={r.rating} />
-
-                  <p
-                    className="font-arabic text-sm leading-relaxed flex-1"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
+                  <p className="font-arabic text-sm leading-relaxed flex-1" style={{ color: 'var(--text-muted)' }}>
                     {r.comment}
                   </p>
-
-                  <div
-                    className="pt-4 border-t flex items-end justify-between"
-                    style={{ borderColor: 'var(--border)' }}
-                  >
+                  <div className="pt-4 border-t flex items-end justify-between" style={{ borderColor: 'var(--border)' }}>
                     <div>
-                      <p className="font-arabic text-sm font-medium" style={{ color: 'var(--text)' }}>
-                        {r.name}
-                      </p>
-                      <p className="font-arabic text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                        {r.city}
-                      </p>
+                      <p className="font-arabic text-sm font-medium" style={{ color: 'var(--text)' }}>{r.name}</p>
+                      <p className="font-arabic text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{r.city}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-end">
                       <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{r.date}</p>
                       {r.verified && (
-                        <p
-                          className="text-[10px] mt-0.5"
-                          style={{ color: 'var(--pink)' }}
-                        >
-                          ✓ Verified
-                        </p>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'var(--pink)' }}>✓ Verified</p>
                       )}
                     </div>
                   </div>
-
                   {r.product && (
-                    <p
-                      className="text-[10px] tracking-wide uppercase"
-                      style={{ color: 'var(--text-faint)' }}
-                    >
+                    <p className="text-[10px] tracking-wide uppercase" style={{ color: 'var(--text-faint)' }}>
                       {r.product}
                     </p>
                   )}
@@ -215,11 +133,8 @@ export default function ReviewsSection() {
                 <button
                   key={i}
                   onClick={() => setPage(i)}
-                  className="h-1 rounded-full transition-all"
-                  style={{
-                    width: i === page ? 24 : 6,
-                    backgroundColor: i === page ? 'var(--text)' : 'var(--border-strong)',
-                  }}
+                  className="h-1.5 rounded-full transition-all"
+                  style={{ width: i === page ? 24 : 6, backgroundColor: i === page ? 'var(--pink)' : 'var(--border-strong)' }}
                 />
               ))}
             </div>
@@ -234,10 +149,7 @@ export default function ReviewsSection() {
           </div>
         )}
 
-        <p
-          className="text-center font-arabic text-sm mt-10"
-          style={{ color: 'var(--text-faint)' }}
-        >
+        <p className="text-center font-arabic text-sm mt-10" style={{ color: 'var(--text-faint)' }}>
           انضم لآلاف العميلات الراضيات — اطلبي الآن وادفعي عند الاستلام
         </p>
       </div>
