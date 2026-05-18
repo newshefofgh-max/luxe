@@ -63,7 +63,8 @@ export default function AdminProductsPage() {
       const params = new URLSearchParams({ limit: '100' });
       if (category !== 'all') params.set('category', category);
       if (search) params.set('search', search);
-      if (activeFilter !== 'all') params.set('isActive', activeFilter === 'active' ? 'true' : 'false');
+      if (activeFilter === 'all') params.set('active', 'all');
+      else params.set('active', activeFilter === 'active' ? 'true' : 'false');
 
       const res = await fetch(`/api/products?${params}`, {
         headers: { Authorization: `Bearer ${token}` },

@@ -22,13 +22,28 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
-    const active = searchParams.get('active');
-    const sortBy = searchParams.get('sortBy') ?? 'createdAt';
-    const sortOrder = searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc';
+    // 'all' = no filter (admin), 'true'/'false' = explicit, null = default active-only (store)
+    const activeParam = searchParams.get('active') ?? searchParams.get('isActive');
     const search = searchParams.get('search');
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+
+    // sort shorthand from store pages: newest | price_asc | price_desc | popular
+    const sortShorthand = searchParams.get('sort');
+    let orderByField = searchParams.get('sortBy') ?? 'createdAt';
+    let orderDir: 'asc' | 'desc' = searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc';
+    if (sortShorthand) {
+      if (sortShorthand === 'newest')     { orderByField = 'createdAt'; orderDir = 'desc'; }
+      else if (sortShorthand === 'oldest'){ orderByField = 'createdAt'; orderDir = 'asc'; }
+      else if (sortShorthand === 'price_asc') { orderByField = 'price'; orderDir = 'asc'; }
+      else if (sortShorthand === 'price_desc'){ orderByField = 'price'; orderDir = 'desc'; }
+      else if (sortShorthand === 'popular')   { orderByField = 'sold';  orderDir = 'desc'; }
+    }
 
     const where: Record<string, unknown> = {};
-    where.isActive = active !== null ? active === 'true' : true;
+    if (activeParam === null) where.isActive = true;           // default: store sees active only
+    else if (activeParam !== 'all') where.isActive = activeParam === 'true';
+    // activeParam === 'all': no isActive filter (admin sees everything)
     if (category) where.category = category;
     if (featured !== null) where.isFeatured = featured === 'true';
     if (search) {
@@ -37,12 +52,18 @@ export async function GET(req: NextRequest) {
         { nameAr: { contains: search } },
       ];
     }
+    if (minPrice || maxPrice) {
+      where.price = {
+        ...(minPrice ? { gte: parseFloat(minPrice) } : {}),
+        ...(maxPrice ? { lte: parseFloat(maxPrice) } : {}),
+      };
+    }
 
-    const SORT_MAP: Record<string, string> = { price: 'price', createdAt: 'createdAt', popularity: 'sold' };
-    const orderByField = SORT_MAP[sortBy] ?? 'createdAt';
+    const SORT_MAP: Record<string, string> = { price: 'price', createdAt: 'createdAt', sold: 'sold' };
+    const safeField = SORT_MAP[orderByField] ?? 'createdAt';
 
     const [products, total] = await Promise.all([
-      db.product.findMany({ where, orderBy: { [orderByField]: sortOrder }, skip, take: limit }),
+      db.product.findMany({ where, orderBy: { [safeField]: orderDir }, skip, take: limit }),
       db.product.count({ where }),
     ]);
 

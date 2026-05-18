@@ -72,7 +72,7 @@ export default function OrderConfirmationPage() {
     const fetchOrder = async () => {
       try {
         const { data } = await axios.get(`/api/orders/${id}`);
-        setOrder(data.data?.order);
+        setOrder(data.data);
       } catch {
         setError('لم يتم العثور على الطلب');
       } finally {
