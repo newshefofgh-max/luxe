@@ -3,7 +3,7 @@ import type { IOrder } from '@/types';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const WHATSAPP_ENABLED = process.env.ENABLE_WHATSAPP === 'true';
-const WHATSAPP_API_URL = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+const WHATSAPP_API_URL = `https://graph.facebook.com/v21.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN;
 const ADMIN_WHATSAPP_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER;
 
@@ -33,8 +33,9 @@ export async function sendWhatsAppMessage(
     return false;
   }
 
-  // Normalize phone: must be international format without +
-  const normalizedPhone = to.replace(/^\+/, '').replace(/\s/g, '');
+  // Normalize to international format without +: 01012345678 → 201012345678
+  let normalizedPhone = to.replace(/^\+/, '').replace(/\s/g, '');
+  if (normalizedPhone.startsWith('0')) normalizedPhone = '2' + normalizedPhone;
 
   const body = {
     messaging_product: 'whatsapp',
