@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { DEFAULT_CONTENT } from '@/lib/defaultContent';
 
-export { DEFAULT_CONTENT };
 
 export async function GET() {
   try {
