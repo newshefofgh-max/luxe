@@ -122,14 +122,14 @@ export default function ProductForm({ product, onSubmit, loading = false }: Prod
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">اسم المنتج (عربي) *</label>
-            <input {...register('nameAr')} className="input bg-gray-900" placeholder="مثال: سوار ذهبي أنيق" />
+            <input {...register('nameAr')} className="input bg-gray-900 text-white placeholder:text-gray-500" placeholder="مثال: سوار ذهبي أنيق" />
             {errors.nameAr && <p className="text-red-400 text-xs mt-1">{errors.nameAr.message}</p>}
           </div>
           <div>
             <label className="label">Product Name (English) *</label>
             <input
               {...register('name')}
-              className="input bg-gray-900"
+              className="input bg-gray-900 text-white placeholder:text-gray-500"
               placeholder="e.g. Elegant Gold Bracelet"
               onChange={handleNameChange}
             />
@@ -142,7 +142,7 @@ export default function ProductForm({ product, onSubmit, loading = false }: Prod
           </div>
           <div>
             <label className="label">التصنيف *</label>
-            <select {...register('category')} className="input bg-gray-900">
+            <select {...register('category')} className="input bg-gray-900 text-white placeholder:text-gray-500">
               <option value="">اختر التصنيف</option>
               {categories.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -152,16 +152,16 @@ export default function ProductForm({ product, onSubmit, loading = false }: Prod
           </div>
           <div>
             <label className="label">السعر (جنيه) *</label>
-            <input {...register('price', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900" />
+            <input {...register('price', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900 text-white placeholder:text-gray-500" />
             {errors.price && <p className="text-red-400 text-xs mt-1">{errors.price.message}</p>}
           </div>
           <div>
             <label className="label">السعر قبل الخصم (اختياري)</label>
-            <input {...register('comparePrice', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900" />
+            <input {...register('comparePrice', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900 text-white placeholder:text-gray-500" />
           </div>
           <div>
             <label className="label">المخزون *</label>
-            <input {...register('stock', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900" />
+            <input {...register('stock', { valueAsNumber: true })} type="number" min="0" className="input bg-gray-900 text-white placeholder:text-gray-500" />
             {errors.stock && <p className="text-red-400 text-xs mt-1">{errors.stock.message}</p>}
           </div>
           <div className="flex items-center gap-3 mt-6">
