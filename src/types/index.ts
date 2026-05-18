@@ -22,7 +22,7 @@ export interface IProduct {
   price: number;
   comparePrice?: number;
   images: string[];
-  category: 'bracelets' | 'necklaces' | 'rings' | 'sunglasses';
+  category: string;
   variants: IVariant[];
   stock: number;
   sold: number;

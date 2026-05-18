@@ -104,7 +104,7 @@ export const productSchema = z.object({
   descriptionAr: z.string().min(10, 'الوصف بالعربي يجب أن يكون 10 أحرف على الأقل'),
   price: z.number().positive('السعر يجب أن يكون أكبر من صفر'),
   comparePrice: z.number().positive().optional(),
-  category: z.enum(['bracelets', 'necklaces', 'rings', 'sunglasses']),
+  category: z.string().min(1, 'الفئة مطلوبة'),
   stock: z.number().int().min(0, 'الكمية لا يمكن أن تكون سالبة'),
   isFeatured: z.boolean().default(false),
   isActive: z.boolean().default(true),

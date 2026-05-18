@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
@@ -17,14 +17,18 @@ interface ProductFormProps {
   loading?: boolean;
 }
 
-const CATEGORIES = [
-  { value: 'bracelets', label: 'أساور' },
-  { value: 'necklaces', label: 'قلادات' },
-  { value: 'rings', label: 'خواتم' },
-  { value: 'sunglasses', label: 'نظارات' },
-];
-
 export default function ProductForm({ product, onSubmit, loading = false }: ProductFormProps) {
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+
+  useEffect(() => {
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => {
+        const nav: { slug: string; ar: string }[] = data.data?.nav_categories ?? [];
+        setCategories(nav.map((c) => ({ value: c.slug, label: c.ar })));
+      })
+      .catch(() => {});
+  }, []);
   const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [variants, setVariants] = useState<
     { name: string; nameAr: string; options: { value: string; stock: number; priceModifier: number }[] }[]
@@ -140,7 +144,7 @@ export default function ProductForm({ product, onSubmit, loading = false }: Prod
             <label className="label">التصنيف *</label>
             <select {...register('category')} className="input bg-gray-900">
               <option value="">اختر التصنيف</option>
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>

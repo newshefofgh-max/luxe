@@ -12,12 +12,8 @@ import ProductGrid from '@/components/store/ProductGrid';
 import axios from 'axios';
 import type { IProduct } from '@/types';
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   { value: '', label: 'الكل', labelEn: 'All' },
-  { value: 'bracelets', label: 'أساور', labelEn: 'Bracelets' },
-  { value: 'necklaces', label: 'قلادات', labelEn: 'Necklaces' },
-  { value: 'rings', label: 'خواتم', labelEn: 'Rings' },
-  { value: 'sunglasses', label: 'نظارات', labelEn: 'Sunglasses' },
 ];
 
 const SORT_OPTIONS = [
@@ -35,6 +31,22 @@ function ProductsContent() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => {
+        const nav: { slug: string; ar: string; en: string }[] = data.data?.nav_categories ?? [];
+        if (nav.length > 0) {
+          setCategories([
+            { value: '', label: 'الكل', labelEn: 'All' },
+            ...nav.map((c) => ({ value: c.slug, label: c.ar, labelEn: c.en })),
+          ]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const category = searchParams.get('category') ?? '';
   const search = searchParams.get('search') ?? '';
@@ -185,7 +197,7 @@ function ProductsContent() {
                 <div>
                   <label className="label">التصنيف</label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <button
                         key={cat.value}
                         onClick={() => updateParam('category', cat.value)}
@@ -246,7 +258,7 @@ function ProductsContent() {
 
           {/* Category tabs */}
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat.value}
                 onClick={() => updateParam('category', cat.value)}

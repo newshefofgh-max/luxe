@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { IProduct } from '@/types';
 
-const CATEGORIES = ['all', 'bracelets', 'necklaces', 'rings', 'sunglasses'];
+const DEFAULT_CATEGORIES = ['all'];
 
 const STOCK_COLOR = (stock: number) => {
   if (stock < 5) return 'text-red-400';
@@ -39,6 +39,17 @@ export default function AdminProductsPage() {
   const [view, setView] = useState<'grid' | 'table'>('grid');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => {
+        const nav: { slug: string }[] = data.data?.nav_categories ?? [];
+        if (nav.length > 0) setCategories(['all', ...nav.map((c) => c.slug)]);
+      })
+      .catch(() => {});
+  }, []);
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -159,7 +170,7 @@ export default function AdminProductsPage() {
               onChange={(e) => setCategory(e.target.value)}
               className="bg-[#111827] border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#C9A84C] transition-colors"
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
               ))}
             </select>

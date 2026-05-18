@@ -23,6 +23,11 @@ const CATEGORY_AR: Record<string, string> = {
   sunglasses: 'نظارات',
 };
 
+function getCategoryLabel(slug: string, navCategories: { slug: string; ar: string }[]): string {
+  const found = navCategories.find((c) => c.slug === slug);
+  return found?.ar ?? CATEGORY_AR[slug] ?? slug;
+}
+
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
@@ -36,6 +41,7 @@ export default function ProductPage() {
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [adding, setAdding] = useState(false);
+  const [navCategories, setNavCategories] = useState<{ slug: string; ar: string }[]>([]);
   const [reviews, setReviews] = useState<{ id: number; name: string; city: string; rating: number; comment: string; date: string; product: string; verified: boolean }[]>([]);
 
   useEffect(() => {
@@ -83,6 +89,13 @@ export default function ProductPage() {
     addItem(product, quantity, selectedVariants);
     router.push('/checkout');
   };
+
+  useEffect(() => {
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => setNavCategories(data.data?.nav_categories ?? []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (activeTab !== 'reviews') return;
@@ -134,7 +147,7 @@ export default function ProductPage() {
               href={`/products?category=${product.category}`}
               className="hover:text-[#E91E8C] transition-colors"
             >
-              {CATEGORY_AR[product.category]}
+              {getCategoryLabel(product.category, navCategories)}
             </Link>
             <ChevronLeft size={14} />
             <span className="text-[var(--text)] truncate max-w-[200px]">{product.nameAr}</span>
@@ -191,7 +204,7 @@ export default function ProductPage() {
             <div dir="rtl">
               <div className="mb-2">
                 <span className="text-xs uppercase tracking-widest text-[#E91E8C]">
-                  {CATEGORY_AR[product.category]}
+                  {getCategoryLabel(product.category, navCategories)}
                 </span>
               </div>
 
