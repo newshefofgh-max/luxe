@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Save, Plus, Trash2, Image as ImageIcon, Eye, EyeOff, ChevronDown, ChevronUp, Upload, X, Loader2, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-type Tab = 'announcement' | 'hero' | 'categories' | 'trust' | 'looks' | 'editorial' | 'cod' | 'newsletter' | 'footer' | 'reviews' | 'nav';
+type Tab = 'announcement' | 'hero' | 'categories' | 'trust' | 'looks' | 'editorial' | 'cod' | 'newsletter' | 'footer' | 'reviews' | 'nav' | 'pixels';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'announcement', label: 'شريط الإعلانات' },
@@ -18,6 +18,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'newsletter',   label: 'النشرة البريدية' },
   { id: 'footer',       label: 'الفوتر' },
   { id: 'reviews',      label: 'التقييمات' },
+  { id: 'pixels',       label: 'بيكسلات الإعلانات' },
 ];
 
 function ImageInput({
@@ -198,15 +199,20 @@ export default function ContentPage() {
   const save = async (key: string, value: unknown) => {
     setSaving(true);
     try {
-      await fetch('/api/admin/content', {
+      const res = await fetch('/api/admin/content', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ key, value }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(`فشل الحفظ: ${err.error ?? res.status}`);
+        return;
+      }
       setContent((prev) => ({ ...prev, [key]: value }));
       toast.success('تم الحفظ ✓');
     } catch {
-      toast.error('فشل الحفظ');
+      toast.error('فشل الحفظ — تحقق من الاتصال');
     } finally {
       setSaving(false);
     }
@@ -678,6 +684,34 @@ export default function ContentPage() {
             <button onClick={() => save('footer', val)} disabled={saving}
               className="flex items-center gap-2 bg-[#C9A84C] text-[#1a1a18] px-6 py-2.5 text-sm font-bold rounded hover:bg-yellow-400 transition-colors disabled:opacity-60">
               <Save size={15} /> {saving ? 'جاري الحفظ...' : 'حفظ الفوتر'}
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* ─── PIXELS ─── */}
+      {activeTab === 'pixels' && (() => {
+        type PX = { meta_pixel_id: string; tiktok_pixel_id: string };
+        const def: PX = { meta_pixel_id: '', tiktok_pixel_id: '' };
+        const val      = get<PX>('pixels', def);
+        const set      = (patch: Partial<PX>) => setContent((p) => ({ ...p, pixels: { ...val, ...patch } }));
+        return (
+          <div>
+            <Card title="Meta Pixel (Facebook & Instagram)">
+              <p className="text-xs text-gray-400 mb-4">ستجد الـ Pixel ID في Meta Business Manager → Events Manager → Data Sources</p>
+              <Field label="Meta Pixel ID">
+                <Input value={val.meta_pixel_id} onChange={(v) => set({ meta_pixel_id: v })} placeholder="مثال: 1234567890123456" />
+              </Field>
+            </Card>
+            <Card title="TikTok Pixel">
+              <p className="text-xs text-gray-400 mb-4">ستجد الـ Pixel ID في TikTok Ads Manager → Assets → Events → Web Events</p>
+              <Field label="TikTok Pixel ID">
+                <Input value={val.tiktok_pixel_id} onChange={(v) => set({ tiktok_pixel_id: v })} placeholder="مثال: ABCDE12345" />
+              </Field>
+            </Card>
+            <button onClick={() => save('pixels', val)} disabled={saving}
+              className="flex items-center gap-2 bg-[#C9A84C] text-[#1a1a18] px-6 py-2.5 text-sm font-bold rounded hover:bg-yellow-400 transition-colors disabled:opacity-60">
+              <Save size={15} /> {saving ? 'جاري الحفظ...' : 'حفظ البيكسلات'}
             </button>
           </div>
         );

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +11,7 @@ import {
   useCartIsOpen,
   useCartSubtotal,
 } from '@/context/CartContext';
+import type { IProduct } from '@/types';
 
 function EmptyCart() {
   return (
@@ -41,7 +42,22 @@ export default function CartSidebar() {
   const isOpen    = useCartIsOpen();
   const items     = useCartItems();
   const subtotal  = useCartSubtotal();
-  const { closeCart, removeItem, updateQuantity } = useCartStore();
+  const { closeCart, removeItem, updateQuantity, addItem } = useCartStore();
+  const [upsell, setUpsell] = useState<IProduct[]>([]);
+
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+    const cartIds = new Set(items.map((i) => i.product._id));
+    fetch('/api/products?limit=8')
+      .then((r) => r.json())
+      .then((data) => {
+        const suggestions = (data.data?.products ?? [] as IProduct[])
+          .filter((p: IProduct) => !cartIds.has(p._id) && p.stock > 0)
+          .slice(0, 3);
+        setUpsell(suggestions);
+      })
+      .catch(() => {});
+  }, [isOpen, items.length]);
 
   return (
     <AnimatePresence>
@@ -226,6 +242,35 @@ export default function CartSidebar() {
                 </div>
               )}
             </div>
+
+            {/* Upsell */}
+            {items.length > 0 && upsell.length > 0 && (
+              <div className="px-4 pb-3 border-t" style={{ borderColor: 'var(--border-strong)' }}>
+                <p className="font-arabic text-xs font-semibold pt-3 mb-2" style={{ color: 'var(--text-faint)' }}>
+                  قد يعجبك أيضاً
+                </p>
+                <div className="space-y-2">
+                  {upsell.map((p) => (
+                    <div key={p._id} className="flex items-center gap-3 p-2 border" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-strong)' }}>
+                      <div className="relative w-12 h-12 flex-shrink-0 overflow-hidden" style={{ backgroundColor: 'var(--surface-alt)' }}>
+                        <Image src={p.images?.[0] || ''} alt={p.nameAr} fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-arabic text-xs line-clamp-1" style={{ color: 'var(--text)' }}>{p.nameAr}</p>
+                        <p className="text-xs font-semibold mt-0.5" style={{ color: 'var(--pink)' }}>{p.price.toLocaleString('ar-EG')} ج.م</p>
+                      </div>
+                      <button
+                        onClick={() => { addItem(p, 1, {}); }}
+                        className="text-xs px-2 py-1 border transition-colors flex-shrink-0"
+                        style={{ borderColor: 'var(--pink)', color: 'var(--pink)' }}
+                      >
+                        + أضف
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Footer */}
             {items.length > 0 && (

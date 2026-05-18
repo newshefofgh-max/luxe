@@ -36,6 +36,7 @@ export default function ProductPage() {
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [adding, setAdding] = useState(false);
+  const [reviews, setReviews] = useState<{ id: number; name: string; city: string; rating: number; comment: string; date: string; product: string; verified: boolean }[]>([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -82,6 +83,14 @@ export default function ProductPage() {
     addItem(product, quantity, selectedVariants);
     router.push('/checkout');
   };
+
+  useEffect(() => {
+    if (activeTab !== 'reviews') return;
+    fetch('/api/content')
+      .then((r) => r.json())
+      .then((data) => setReviews(data.data?.reviews ?? []))
+      .catch(() => {});
+  }, [activeTab]);
 
   const discountPercent = product?.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
@@ -350,12 +359,35 @@ export default function ProductPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
+                  dir="rtl"
                 >
-                  <div className="flex text-[#E91E8C] mb-4">
-                    {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
-                    <span className="text-[var(--text)] mr-2 font-bold">4.9</span>
-                  </div>
-                  <p className="text-[var(--text-faint)] text-sm">التقييمات متاحة بعد الشراء.</p>
+                  {reviews.length === 0 ? (
+                    <p className="text-[var(--text-faint)] text-sm">لا توجد تقييمات بعد.</p>
+                  ) : (
+                    <div className="space-y-5">
+                      {reviews.map((r) => (
+                        <div key={r.id} className="border-b border-theme-border pb-5">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-[var(--text)] text-sm">{r.name}</span>
+                              {r.verified && (
+                                <span className="text-[10px] bg-green-500/15 text-green-500 px-2 py-0.5 rounded-full font-medium">
+                                  ✓ مشتري موثق
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-[var(--text-faint)]">{r.city} · {r.date}</span>
+                          </div>
+                          <div className="flex text-[#E91E8C] mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} size={13} fill={i < r.rating ? 'currentColor' : 'none'} />
+                            ))}
+                          </div>
+                          <p className="text-[var(--text-muted)] text-sm leading-relaxed">{r.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

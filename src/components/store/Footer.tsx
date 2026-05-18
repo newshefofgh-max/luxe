@@ -42,11 +42,10 @@ const DEFAULT: FooterContent = {
     { href: '/products?sort=sale',          label: 'Sale' },
   ],
   help_links: [
-    { href: '/account',  label: 'My Account' },
-    { href: '/checkout', label: 'Checkout' },
-    { href: '/returns',  label: 'Returns & Exchanges' },
-    { href: '/shipping', label: 'Shipping Policy' },
-    { href: '/privacy',  label: 'Privacy Policy' },
+    { href: '/account',        label: 'My Account' },
+    { href: '/checkout',       label: 'Checkout' },
+    { href: '/terms',          label: 'الشروط والأحكام' },
+    { href: '/privacy-policy', label: 'سياسة الخصوصية' },
   ],
 };
 

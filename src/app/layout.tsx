@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/context/AuthContext';
 import CartSidebar from '@/components/store/CartSidebar';
 import ThemeApplier from '@/components/ThemeApplier';
+import PixelScripts from '@/components/PixelScripts';
 
 export const metadata: Metadata = {
   title: {
@@ -79,6 +80,7 @@ export default function RootLayout({
       </head>
       <body className="bg-page text-theme-text antialiased">
         <ThemeApplier />
+        <PixelScripts />
         <AuthProvider>
           {children}
           <CartSidebar />
