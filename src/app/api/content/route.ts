@@ -14,8 +14,12 @@ export async function GET() {
         content[row.key] = row.value;
       }
     }
-    return NextResponse.json({ data: content });
+    return NextResponse.json({ data: content }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    });
   } catch {
-    return NextResponse.json({ data: DEFAULT_CONTENT });
+    return NextResponse.json({ data: DEFAULT_CONTENT }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    });
   }
 }
