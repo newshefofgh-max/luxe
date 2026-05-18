@@ -61,6 +61,11 @@ export async function POST(req: NextRequest) {
 
     const { phone } = parsed.data;
 
+    // If OTP is disabled via env, bypass entirely
+    if (process.env.SKIP_OTP === 'true') {
+      return NextResponse.json({ data: { success: true, method: 'bypass', bypass: true, expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() } });
+    }
+
     // Rate limit: max 3 OTPs per phone per hour
     const rlResult = otpRateLimit(phone);
     if (!rlResult.allowed) {

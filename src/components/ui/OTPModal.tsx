@@ -46,6 +46,10 @@ export default function OTPModal({ isOpen, phone, onVerified, onClose }: OTPModa
     setIsSending(true);
     try {
       const { data } = await axios.post('/api/otp/send', { phone });
+      if (data.data?.bypass) {
+        onVerified();
+        return;
+      }
       setMethod(data.data?.method ?? 'whatsapp');
       toast.success(
         data.data?.method === 'sms'
@@ -58,7 +62,7 @@ export default function OTPModal({ isOpen, phone, onVerified, onClose }: OTPModa
     } finally {
       setIsSending(false);
     }
-  }, [phone]);
+  }, [phone, onVerified]);
 
   const handleDigitChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;

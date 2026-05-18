@@ -5,65 +5,6 @@
 /* ─── Google Fonts ───────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=DM+Sans:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-/* ─── FT System Blank (English body / UI font) ──────────────────────────────── */
-@font-face {
-  font-family: 'FT System Blank';
-  src: local('FT System Blank Regular'),
-       url('/fonts/FTSystemBlank-Regular.woff2') format('woff2'),
-       url('/fonts/FTSystemBlank-Regular.woff')  format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'FT System Blank';
-  src: local('FT System Blank Medium'),
-       url('/fonts/FTSystemBlank-Medium.woff2') format('woff2'),
-       url('/fonts/FTSystemBlank-Medium.woff')  format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'FT System Blank';
-  src: local('FT System Blank Bold'),
-       url('/fonts/FTSystemBlank-Bold.woff2') format('woff2'),
-       url('/fonts/FTSystemBlank-Bold.woff')  format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'FT System Blank';
-  src: local('FT System Blank Black'),
-       url('/fonts/FTSystemBlank-Black.woff2') format('woff2'),
-       url('/fonts/FTSystemBlank-Black.woff')  format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ─── Milligram Arabic Trial Bold ────────────────────────────────────────────── */
-@font-face {
-  font-family: 'Milligram Arabic';
-  src: local('Milligram Arabic Trial Bold'),
-       local('MilligramArabicTrialBold'),
-       url('/fonts/MilligramArabicTrial-Bold.woff2') format('woff2'),
-       url('/fonts/MilligramArabicTrial-Bold.woff')  format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Milligram Arabic';
-  src: local('Milligram Arabic Trial Bold'),
-       local('MilligramArabicTrialBold'),
-       url('/fonts/MilligramArabicTrial-Bold.woff2') format('woff2'),
-       url('/fonts/MilligramArabicTrial-Bold.woff')  format('woff');
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 /* ─── Theme tokens — Velvet Accessories palette ──────────────────────────────── */
 :root {
@@ -107,7 +48,7 @@ html.dark {
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'FT System Blank', 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
   font-weight: 500;
   background-color: var(--bg);
   color: var(--text);
@@ -117,12 +58,12 @@ body {
 [dir="rtl"] body,
 .font-arabic,
 [lang="ar"] {
-  font-family: 'Milligram Arabic', 'Cairo', 'Tahoma', Arial, sans-serif;
+  font-family: 'Cairo', 'Tahoma', Arial, sans-serif;
   font-weight: 700;
 }
 
 .font-arabic {
-  font-family: 'Milligram Arabic', 'Cairo', 'Tahoma', Arial, sans-serif;
+  font-family: 'Cairo', 'Tahoma', Arial, sans-serif;
   font-weight: 700;
 }
 
