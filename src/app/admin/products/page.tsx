@@ -69,15 +69,13 @@ export default function AdminProductsPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) {
-        let items: IProduct[] = data.data;
+      let items: IProduct[] = data.data?.products ?? data.data ?? [];
 
-        if (stockFilter === 'low') items = items.filter((p) => p.stock > 0 && p.stock < 20);
-        else if (stockFilter === 'out') items = items.filter((p) => p.stock === 0);
+      if (stockFilter === 'low') items = items.filter((p) => p.stock > 0 && p.stock < 20);
+      else if (stockFilter === 'out') items = items.filter((p) => p.stock === 0);
 
-        setProducts(items);
-        setTotalCount(items.length);
-      }
+      setProducts(items);
+      setTotalCount(data.data?.total ?? items.length);
     } catch {}
     setIsLoading(false);
   }, [category, search, activeFilter, stockFilter]);
