@@ -13,7 +13,10 @@ const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || 'admin@accessory.eg';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin1234!';
 const ADMIN_NAME     = 'Admin';
 const ADMIN_PHONE    = '01000000000';
-const DB_PATH        = 'C:\\Users\\LOQ\\Desktop\\ecommerce\\dev.db';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DB_PATH = process.env.DB_PATH || join(__dirname, '..', 'dev.db');
 
 const db = new Database(DB_PATH);
 
